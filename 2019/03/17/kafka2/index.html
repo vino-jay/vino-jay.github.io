@@ -98,23 +98,30 @@
 
 
 
-  <meta name="description" content="凡不能毁灭我的，将使我更强大">
-<meta property="og:type" content="website">
-<meta property="og:title" content="vino-jay的技术博客">
-<meta property="og:url" content="https://vino-jay.github.io/index.html">
+  <meta name="description" content="背景上文主要描述了kafka的基本概念，很清楚kafka是一个具有高并发处理能力的消息框架。那么，在现在分布式环境下，各类系统总会出现数据丢失的情况，很是棘手，那kafka又是如何解决此问题的呢？ 现象在 Kafka 里面，有一个核心的概念叫做“Topic”，这个Topic你就姑且认为是一个数据集合吧。topic里面如果每天写入几十TB的数据，你觉得都放一台机器上靠谱吗？ 明显不太靠谱。万一机器宕">
+<meta name="keywords" content="kafka,分布式消息组件,高并发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="kafka 高并发下如何防止数据丢失">
+<meta property="og:url" content="https://vino-jay.github.io/2019/03/17/kafka2/index.html">
 <meta property="og:site_name" content="vino-jay的技术博客">
-<meta property="og:description" content="凡不能毁灭我的，将使我更强大">
+<meta property="og:description" content="背景上文主要描述了kafka的基本概念，很清楚kafka是一个具有高并发处理能力的消息框架。那么，在现在分布式环境下，各类系统总会出现数据丢失的情况，很是棘手，那kafka又是如何解决此问题的呢？ 现象在 Kafka 里面，有一个核心的概念叫做“Topic”，这个Topic你就姑且认为是一个数据集合吧。topic里面如果每天写入几十TB的数据，你觉得都放一台机器上靠谱吗？ 明显不太靠谱。万一机器宕">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://vino-jay.github.io/images/kafka3.png">
+<meta property="og:image" content="https://vino-jay.github.io/images/kafka4.png">
+<meta property="og:image" content="https://vino-jay.github.io/images/kafka5.png">
+<meta property="og:image" content="https://vino-jay.github.io/images/kafka5.png">
+<meta property="og:updated_time" content="2019-03-17T11:56:52.005Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="vino-jay的技术博客">
-<meta name="twitter:description" content="凡不能毁灭我的，将使我更强大">
+<meta name="twitter:title" content="kafka 高并发下如何防止数据丢失">
+<meta name="twitter:description" content="背景上文主要描述了kafka的基本概念，很清楚kafka是一个具有高并发处理能力的消息框架。那么，在现在分布式环境下，各类系统总会出现数据丢失的情况，很是棘手，那kafka又是如何解决此问题的呢？ 现象在 Kafka 里面，有一个核心的概念叫做“Topic”，这个Topic你就姑且认为是一个数据集合吧。topic里面如果每天写入几十TB的数据，你觉得都放一台机器上靠谱吗？ 明显不太靠谱。万一机器宕">
+<meta name="twitter:image" content="https://vino-jay.github.io/images/kafka3.png">
 
 
 
 
 
 
-  <link rel="canonical" href="https://vino-jay.github.io/">
+  <link rel="canonical" href="https://vino-jay.github.io/2019/03/17/kafka2/">
 
 
 
@@ -124,7 +131,7 @@
   };
 </script>
 
-  <title>vino-jay的技术博客</title>
+  <title>kafka 高并发下如何防止数据丢失 | vino-jay的技术博客</title>
   
 
 
@@ -172,8 +179,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-  page-home">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -211,7 +217,7 @@
         
         
           
-          <li class="menu-item menu-item-home menu-item-active">
+          <li class="menu-item menu-item-home">
 
     
     
@@ -307,9 +313,9 @@
           
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
 
@@ -341,10 +347,8 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/03/17/kafka2/" class="post-title-link" itemprop="url">kafka 高并发下如何防止数据丢失</a>
+          <h1 class="post-title" itemprop="name headline">kafka 高并发下如何防止数据丢失
+
               
             
           </h1>
@@ -408,9 +412,7 @@
       
 
       
-        
-          
-            <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p><strong>上文主要描述了kafka的基本概念，很清楚kafka是一个具有高并发处理能力的消息框架。那么，在现在分布式环境下，各类系统总会出现数据丢失的情况，很是棘手，那kafka又是如何解决此问题的呢？</strong></p>
+        <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p><strong>上文主要描述了kafka的基本概念，很清楚kafka是一个具有高并发处理能力的消息框架。那么，在现在分布式环境下，各类系统总会出现数据丢失的情况，很是棘手，那kafka又是如何解决此问题的呢？</strong></p>
 <h3 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h3><p>在 Kafka 里面，有一个核心的概念叫做“Topic”，这个Topic你就姑且认为是一个数据集合吧。topic里面如果每天写入几十TB的数据，你觉得都放一台机器上靠谱吗？</p>
 <h2 id="明显不太靠谱。万一机器宕机，后果可想而知。"><a href="#明显不太靠谱。万一机器宕机，后果可想而知。" class="headerlink" title="明显不太靠谱。万一机器宕机，后果可想而知。"></a>明显不太靠谱。万一机器宕机，后果可想而知。</h2><p>所以Kafka 有一个概念叫做 分区，就是把一个Topic数据集合拆分为多个分区，每个分区可以在不同的机器储存部分数据。<br>这样，不就可以把一个超大的数据集合分布式存储在多台机器上了吗？大家看下图，一起来体会一下。<br><img src="/images/kafka3.png" alt="图1" title="示例图片"></p>
 <p>但是这个时候，我们又会遇到一个问题，就是万一某台机器宕机了，这台机器上的那个 Partition 管理的数据不就丢失了吗？</p>
@@ -439,8 +441,6 @@
 </ul>
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;本文讲了一个分布式环境下，kafka如何保证消息的一致性的，主要是针对Leader切换时可能导致数据丢失的状况。当然，其实Kafka的数据丢失问题，涉及到方方面面。比如，生产端的缓存问题，包括消费端的问题，同时Kafka自己内部的底层算法和机制也可能导致数据丢失。<br>kafka有丰富的开源社区，有一大批开发支持者，不断正优化和扩展它。kafka美妙的设计，值得大家去探索。下篇文章我会给出kafka在windows环境下的搭建过程。</p>
 
-          
-        
       
     </div>
 
@@ -461,327 +461,40 @@
 
     <footer class="post-footer">
       
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/17/kafka1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="vino-jay">
-      <meta itemprop="description" content="凡不能毁灭我的，将使我更强大">
-      <meta itemprop="image" content="/images/headph.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="vino-jay的技术博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/03/17/kafka1/" class="post-title-link" itemprop="url">kafka 简述</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2019-03-17 17:18:32 / 修改时间：18:27:01" itemprop="dateCreated datePublished" datetime="2019-03-17T17:18:32+08:00">2019-03-17</time>
-            
-
-            
-              
-
-              
-            
-          </span>
-
+        <div class="post-tags">
           
-
+            <a href="/tags/kafka/" rel="tag"># kafka</a>
           
-            
-            
+            <a href="/tags/分布式消息组件/" rel="tag"># 分布式消息组件</a>
           
-
+            <a href="/tags/高并发/" rel="tag"># 高并发</a>
           
-          
-
-          
-
-          
-
-          
-
         </div>
-      </header>
-    
+      
 
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
+      
       
       
 
       
-        
-          <h3 id="Kafka是什么？"><a href="#Kafka是什么？" class="headerlink" title="Kafka是什么？"></a>Kafka是什么？</h3><p>&nbsp;&nbsp;&nbsp;&nbsp; Kafka 是一个高吞吐量、分布式的发布—订阅消息系统。</p>
-<ul>
-<li>它最初由LinkedIn公司开发，后来成为Apache 项目的一部分。Kafka 核心模块使用Scala 语言开发，支持多语言（如Java、C/C++、Python、Go、Erlang、Node.js 等）客户端，它以可水平扩展和具有高吞吐量等特性而被广泛使用。</li>
-<li>当前的Kafka 已经定位为一个分布式流式处理平台（a distributed streaming platform），目前越来越多的开源分布式处理系统（如Flume、Apache Storm、Spark、Flink等）支持与Kafka 集成。</li>
-</ul>
-<h3 id="kafka背景"><a href="#kafka背景" class="headerlink" title="kafka背景"></a>kafka背景</h3><p>&nbsp;&nbsp;&nbsp;&nbsp; 随着信息技术的快速发展及互联网用户规模的急剧增长，计算机所存储的信息量正呈爆炸式增长，目前数据量已进入大规模和超大规模的海量数据时代，如何高效地存储、分析、处理和挖掘海量数据已成为技术研究领域的热点和难点问题。</p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/03/17/kafka1/#more" rel="contents">
-                阅读全文 &raquo;
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/17/kafka1/" rel="next" title="kafka 简述">
+                <i class="fa fa-chevron-left"></i> kafka 简述
               </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/17/spring-Boot/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="vino-jay">
-      <meta itemprop="description" content="凡不能毁灭我的，将使我更强大">
-      <meta itemprop="image" content="/images/headph.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="vino-jay的技术博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/03/17/spring-Boot/" class="post-title-link" itemprop="url">Spring Boot简述</a>
-              
             
-          </h1>
-        
+          </div>
 
-        <div class="post-meta">
-          <span class="post-time">
+          <span class="post-nav-divider"></span>
 
+          <div class="post-nav-prev post-nav-item">
             
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2019-03-17 15:28:02 / 修改时间：17:24:19" itemprop="dateCreated datePublished" datetime="2019-03-17T15:28:02+08:00">2019-03-17</time>
-            
-
-            
-              
-
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
+          </div>
         </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
       
 
       
-        
-          <h3 id="Spring-Boot是什么？"><a href="#Spring-Boot是什么？" class="headerlink" title="Spring Boot是什么？"></a>Spring Boot是什么？</h3><p>Spring Boot是解决这个问题的方法。Spring Boot已经建立在现有spring框架之上。使用spring启动，我们避免了之前我们必须做的所有样板代码和配置。<br>因此，Spring Boot可以帮助我们以最少的工作量，更加健壮地使用现有的Spring功能。</p>
-<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul>
-<li>减少开发，测试时间。</li>
-<li>使用JavaConfig有助于避免使用XML。</li>
-<li>避免大量的Maven导入和各种版本冲突。</li>
-<li>通过提供默认值快速开始开发。</li>
-<li>没有单独的Web服务器需要，这意味着你不再需要启动Tomcat或其他任何容器。</li>
-<li>需要更少的配置 因为没有web.xml文件。只需添加用@ Configuration注释的类，然后添加用@Bean注释的方法，Spring将自动加载对象并像以前一样对其进行管理。您甚至可以将@Autowired添加到bean方法中，以使Spring自动装入需要的依赖关系中。</li>
-<li>基于环境的配置 使用这些属性，您可以将您正在使用的环境传递到应用程序：-Dspring.profiles.active = {enviornment}。在加载主应用程序属性文件后，Spring将在（application{environment} .properties）中加载后续的应用程序属性文件。</li>
-<li>有了Spring Boot可以非常方便集成现在流行的Spring Cloud微服务框架。</li>
-</ul>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/03/17/spring-Boot/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </div>
@@ -791,165 +504,15 @@
   </article>
 
 
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/17/start-blog/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="vino-jay">
-      <meta itemprop="description" content="凡不能毁灭我的，将使我更强大">
-      <meta itemprop="image" content="/images/headph.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="vino-jay的技术博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/03/17/start-blog/" class="post-title-link" itemprop="url">技术博客的第一天</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2019-03-17 14:14:26 / 修改时间：14:20:34" itemprop="dateCreated datePublished" datetime="2019-03-17T14:14:26+08:00">2019-03-17</time>
-            
-
-            
-              
-
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>2019/03/17 加入博客家族第一天！</p>
-<h3 id="心情"><a href="#心情" class="headerlink" title="心情"></a>心情</h3><p>作为工作好几年的coder,至今才正式建立自己的博客，除了兴奋还是兴奋…</p>
-<h3 id="愿景"><a href="#愿景" class="headerlink" title="愿景"></a>愿景</h3><p>希望能够通过写博客，一方面分享自己的经验和心得，与博友们共享知识的乐趣；另一方面，加强自己的语言总结和表达能力。</p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/03/17/start-blog/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
   </div>
-  
-  
-  
-  </article>
-
-
-    
-  </section>
-
-  
 
 
           </div>
           
+
+  
+
+
 
         </div>
         
@@ -969,8 +532,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <div class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -1043,6 +615,23 @@
         </div>
       </div>
 
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#现象"><span class="nav-number">2.</span> <span class="nav-text">现象</span></a></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#明显不太靠谱。万一机器宕机，后果可想而知。"><span class="nav-number"></span> <span class="nav-text">明显不太靠谱。万一机器宕机，后果可想而知。</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#重点来了：Kafka-的-ISR-机制是什么？"><span class="nav-number">1.</span> <span class="nav-text">重点来了：Kafka 的 ISR 机制是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Kafka-写入的数据如何保证不丢失？"><span class="nav-number">2.</span> <span class="nav-text">Kafka 写入的数据如何保证不丢失？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></li></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
       
 
       
@@ -1174,6 +763,10 @@
 
 
   
+  <script src="/js/src/scrollspy.js?v=7.0.1"></script>
+<script src="/js/src/post-details.js?v=7.0.1"></script>
+
+
 
   
 
@@ -1189,6 +782,8 @@
 
   
 
+
+  
 
 
   

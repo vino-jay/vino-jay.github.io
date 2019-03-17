@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.1" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.0.1',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Kafka是什么？&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; Kafka 是一个高吞吐量、分布式的发布—订阅消息系统。  它最初由LinkedIn公司开发，后来成为Apache 项目的一部分。Kafka 核心模块使用Scala 语言开发，支持多语言（如Java、C/C++、Python、Go、Erlang、Node.js 等）客户端，它以可水平扩展和具有高吞吐量等特性而被广泛使用。 当前的K">
+<meta name="keywords" content="kafka,分布式消息组件,高并发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="kafka 简述">
+<meta property="og:url" content="https://vino-jay.github.io/2019/03/17/kafka1/index.html">
+<meta property="og:site_name" content="vino-jay的技术博客">
+<meta property="og:description" content="Kafka是什么？&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; Kafka 是一个高吞吐量、分布式的发布—订阅消息系统。  它最初由LinkedIn公司开发，后来成为Apache 项目的一部分。Kafka 核心模块使用Scala 语言开发，支持多语言（如Java、C/C++、Python、Go、Erlang、Node.js 等）客户端，它以可水平扩展和具有高吞吐量等特性而被广泛使用。 当前的K">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://vino-jay.github.io/images/kafka.png">
+<meta property="og:image" content="https://vino-jay.github.io/images/kafka2.png">
+<meta property="og:updated_time" content="2019-03-17T10:27:01.537Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="kafka 简述">
+<meta name="twitter:description" content="Kafka是什么？&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; Kafka 是一个高吞吐量、分布式的发布—订阅消息系统。  它最初由LinkedIn公司开发，后来成为Apache 项目的一部分。Kafka 核心模块使用Scala 语言开发，支持多语言（如Java、C/C++、Python、Go、Erlang、Node.js 等）客户端，它以可水平扩展和具有高吞吐量等特性而被广泛使用。 当前的K">
+<meta name="twitter:image" content="https://vino-jay.github.io/images/kafka.png">
+
+
+
+
+
+
+  <link rel="canonical" href="https://vino-jay.github.io/2019/03/17/kafka1/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>kafka 简述 | vino-jay的技术博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">vino-jay的技术博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>随笔</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/17/kafka1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="vino-jay">
+      <meta itemprop="description" content="凡不能毁灭我的，将使我更强大">
+      <meta itemprop="image" content="/images/headph.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="vino-jay的技术博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">kafka 简述
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-03-17 17:18:32 / 修改时间：18:27:01" itemprop="dateCreated datePublished" datetime="2019-03-17T17:18:32+08:00">2019-03-17</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="Kafka是什么？"><a href="#Kafka是什么？" class="headerlink" title="Kafka是什么？"></a>Kafka是什么？</h3><p>&nbsp;&nbsp;&nbsp;&nbsp; Kafka 是一个高吞吐量、分布式的发布—订阅消息系统。</p>
+<ul>
+<li>它最初由LinkedIn公司开发，后来成为Apache 项目的一部分。Kafka 核心模块使用Scala 语言开发，支持多语言（如Java、C/C++、Python、Go、Erlang、Node.js 等）客户端，它以可水平扩展和具有高吞吐量等特性而被广泛使用。</li>
+<li>当前的Kafka 已经定位为一个分布式流式处理平台（a distributed streaming platform），目前越来越多的开源分布式处理系统（如Flume、Apache Storm、Spark、Flink等）支持与Kafka 集成。</li>
+</ul>
+<h3 id="kafka背景"><a href="#kafka背景" class="headerlink" title="kafka背景"></a>kafka背景</h3><p>&nbsp;&nbsp;&nbsp;&nbsp; 随着信息技术的快速发展及互联网用户规模的急剧增长，计算机所存储的信息量正呈爆炸式增长，目前数据量已进入大规模和超大规模的海量数据时代，如何高效地存储、分析、处理和挖掘海量数据已成为技术研究领域的热点和难点问题。</p>
+<a id="more"></a>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; 因此，kafka应运而生，很好的解决了这些难题：</p>
+<ul>
+<li>Kafka 是一款开源的、轻量级的、分布式、可分区和具有复制备份的（Replicated）、基于ZooKeeper 协调管理的分布式流平台的功能强大的消息系统。与传统的消息系统相比，Kafka能够很好地处理活跃的流数据，使得数据在各个子系统中高性能、低延迟地不停流转。</li>
+</ul>
+<h3 id="kafka的基本概念"><a href="#kafka的基本概念" class="headerlink" title="kafka的基本概念"></a>kafka的基本概念</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;  我们知道，作为一个消息系统，其基本结构中至少要有产生消息的组件（消息生产者，Producer）以及消费消息的组件（消费者，Consumer）。虽然消费者并不是必需的，但离开了消费者构建一个消息系统终究是毫无意义的。Kafka 消息系统最基本的体系结构如图1-1 所示。<br><img src="/images/kafka.png" alt="图1-1" title="示例图片"></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; 通过上图，可以看到消息系统的基本结构，接下来对Kafka 的基本概念进行简要阐述。</p>
+<h4 id="主题"><a href="#主题" class="headerlink" title="主题"></a>主题</h4><ul>
+<li>Kafka 将一组消息抽象归纳为一个主题（Topic），也就是说，一个主题就是对消息的一个分类。生产者将消息发送到特定主题，消费者订阅主题或主题的某些分区进行消费。</li>
+</ul>
+<h4 id="消息"><a href="#消息" class="headerlink" title="消息"></a>消息</h4><ul>
+<li>消息是Kafka 通信的基本单位，由一个固定长度的消息头和一个可变长度的消息体构成。在老版本中，每一条消息称为Message；在由Java 重新实现的客户端中，每一条消息称为Record。</li>
+</ul>
+<h4 id="分区和副本"><a href="#分区和副本" class="headerlink" title="分区和副本"></a>分区和副本</h4><ul>
+<li>Kafka 将一组消息归纳为一个主题，而每个主题又被分成一个或多个分区（Partition）。每个分区由一系列有序、不可变的消息组成，是一个有序队列。</li>
+<li>每个分区在物理上对应为一个文件夹，分区的命名规则为主题名称后接“—”连接符，之后再接分区编号，分区编号从0 开始，编号最大值为分区的总数减1。</li>
+<li>每个分区又有一至多个副本（Replica），分区的副本分布在集群的不同代理上，以提高可用性。</li>
+<li>从存储角度上分析，分区的每个副本在逻辑上抽象为一个日志（Log）对象，即分区的副本与日志对象是一一对应的。</li>
+<li>每个主题对应的分区数可以在Kafka 启动时所加载的配置文件中配置，也可以在创建主题时指定。当然，客户端还可以在主题创建后修改主题的分区数。</li>
+</ul>
+<p><strong><em>分区使得Kafka 在并发处理上变得更加容易，理论上来说，分区数越多吞吐量越高，但这要根据集群实际环境及业务场景而定。同时，分区也是Kafka 保证消息被顺序消费以及对消息进行负载均衡的基础。</em></strong></p>
+<ul>
+<li>Kafka 只能保证一个分区之内消息的有序性，并不能保证跨分区消息的有序性。每条消息被追加到相应的分区中，是顺序写磁盘，因此效率非常高，这是Kafka 高吞吐率的一个重要保证。</li>
+</ul>
+<h4 id="Leader-副本和Follower-副本"><a href="#Leader-副本和Follower-副本" class="headerlink" title="Leader 副本和Follower 副本"></a>Leader 副本和Follower 副本</h4><ul>
+<li>kafka会选择分区的一个副本作为Leader副本，该分区其他的副本即为Follower副本，只有 Leader副本才复杂处理客户端读/写请求，Follower副本从Leader副本同步数据。</li>
+<li>副本Follower 与Leader 的角色并不是固定不变的，如果Leader 失效，通过相应的选举算法将从其他Follower 副本中选出新的Leader 副本。</li>
+</ul>
+<h4 id="偏移量"><a href="#偏移量" class="headerlink" title="偏移量"></a>偏移量</h4><ul>
+<li>任何发布到分区的消息会被直接追加到日志文件（分区目录下以“.log”为文件名后缀的数据文件）的尾部，而每条消息在日志文件中的位置都会对应一个按序递增的偏移量。</li>
+<li>偏移量一个分区下严格有序的逻辑值，它并不表示消息在磁盘上的物理位置。</li>
+<li>消费者可以通过控制消息偏移量来对消息进行消费，如消费者可以指定消费的起始偏移量。为了保证消息被顺序消费，消费者已消费的消息对应的偏移量也需要保存。</li>
+<li>旧版消费者将消费偏移量保存到ZooKeeper 当中，而新版消费者是将消费偏移量保存到Kafka 内部一个主题当中。当然，消费者也可以自己在外部系统保存消费偏移量，而无需保存到Kafka 中。</li>
+</ul>
+<h4 id="日志段"><a href="#日志段" class="headerlink" title="日志段"></a>日志段</h4><ul>
+<li>一个日志又被划分为多个日志段（LogSegment），日志段是Kafka日志对象分片的最小单位。与日志对象一样，日志段也是一个逻辑概念，一个日志段对应磁盘上一个具体日志文件和两个索引文件。</li>
+<li>日志文件是以“.log”为文件名后缀的数据文件，用于保存消息实际数据。两个索引文件分别以“.index”和“.timeindex”作为文件名后缀，分别表示消息偏移量索引文件和消息时间戳索引文件。</li>
+</ul>
+<h4 id="代理"><a href="#代理" class="headerlink" title="代理"></a>代理</h4><ul>
+<li>在Kafka基本体系结构中我们提到了Kafka集群。Kafka集群就是由一个或多个Kafka实例构成，我们将每一个Kafka实例称为代理（Broker），通常也称代理为Kafka 服务器（KafkaServer）。</li>
+<li>在生产环境中Kafka集群一般包括一台或多台服务器，我们可以在一台服务器上配置一个或多个代理。每一个代理都有唯一的标识 id，这个 id 是一个非负整数。</li>
+</ul>
+<h4 id="生产者"><a href="#生产者" class="headerlink" title="生产者"></a>生产者</h4><p>生产者（Producer）负责将消息发送给代理，也就是向Kafka代理发送消息的客户端。</p>
+<h4 id="消费者"><a href="#消费者" class="headerlink" title="消费者"></a>消费者</h4><ul>
+<li>消费者（Comsumer）以拉取（pull）方式拉取数据，它是消费的客户端。在Kafka 中每一个消费者都属于一个特定消费组（ConsumerGroup），我们可以为每个消费者指定一个消费组，以groupId 代表消费组名称，通过group.id 配置设置。</li>
+<li>如果不指定消费组，则该消费者属于默认消费组test-consumer-group。同时，每个消费者也有一个全局唯一的id，通过配置项client.id指定，如果客户端没有指定消费者的id，Kafka 会自动为该消费者生成一个全局唯一的id，格式为${groupId}-${hostName}-${timestamp}-${UUID 前 8 位字符}</li>
+<li>同一个主题的一条消息只能被同一个消费组下某一个消费者消费，但不同消费组的消费者可同时消费该消息。</li>
+<li>消费组是Kafka用来实现对一个主题消息进行广播和单播的手段，实现消息广播只需指定各消费者均属于不同的消费组，消息单播则只需让各消费者属于同一个消费组。</li>
+</ul>
+<h4 id="ISR"><a href="#ISR" class="headerlink" title="ISR"></a>ISR</h4><ul>
+<li>Kafka在ZooKeeper中动态维护了一个ISR（In-sync Replica），即保存同步的副本列表，该列表中保存的是与Leader 副本保持消息同步的所有副本对应的代理节点id。</li>
+<li>如果一个Follower副本宕机（本书用宕机来特指某个代理失效的情景，如代理被人为关闭或是发生物理故障、心跳检测过期、网络延迟、进程崩溃等）或是落后太多，则该Follower副本节点将从ISR 列表中移除。</li>
+</ul>
+<h4 id="ZooKeeper"><a href="#ZooKeeper" class="headerlink" title="ZooKeeper"></a>ZooKeeper</h4><p>这里我们并不打算介绍ZooKeeper 的相关知识，只是简要介绍ZooKeeper 在Kafka 中的作<br>用。 有兴趣的小伙伴请继续关注我，后续会对zooKeeper相关知识进行分享。</p>
+<ul>
+<li>Kafka利用ZooKeeper保存相应元数据信息，Kafka元数据信息包括如代理节点信息、Kafka集群信息、旧版消费者信息及其消费偏移量信息、主题信息、分区状态信息、分区副本分配方<br>案信息、动态配置信息等。</li>
+<li>Kafka 在启动或运行过程当中会在ZooKeeper 上创建相应节点来保存元数据信息，Kafka 通过监听机制在这些节点注册相应监听器来监听节点元数据的变化，从而由ZooKeeper负责管理维护Kafka 集群，同时通过ZooKeeper我们能够很方便地对Kafka集群进行水平扩展及数据迁移。<br>图1-2 Kafka的集群结构：<br><img src="/images/kafka2.png" alt="图1-2" title="示例图片"></li>
+</ul>
+<h3 id="kafka的设计动机"><a href="#kafka的设计动机" class="headerlink" title="kafka的设计动机"></a>kafka的设计动机</h3><ul>
+<li>具有高吞吐量诸如实时的日志集大规模事件流。</li>
+<li>能够很好处理大量积压的数据，以便能够周期性加载离线数据进行处理。</li>
+<li>能够低延迟地处理传统消息应用场景。</li>
+<li>能够支持分区、分布式，实时地处理消息，同时具有容错机制。</li>
+<li>满足上述条件的kafka与传统的消息系统比更像是一个数据库日志系统。</li>
+<li>据 Kafka 官方网站介绍： 6 块 7200r/min SATA RAID-5阵列的磁盘线性写的速度为 600 MB/s，而随机写的速度为 100KB/s，线性写的速度约是随机写的 6000 多倍。由此看来磁盘的快慢取决于我们是如何去应用磁盘。</li>
+<li>同时，由于 Kafka 是基于 JVM（Java Virtual Machine）的，而 Java 对象内存消耗非常高，且随着 Java 对象的增加 JVM 的垃圾回收也越来越频繁和繁琐，这些都加大了内存的消耗。鉴于以上因素，使用文件系统和依赖于页缓存（page cache）的存储比维护一个内存的存储或是应用其他结构来存储消息更有优势，因此 Kafka 选择以文件系统来存储数据。</li>
+</ul>
+<h3 id="kafka的特性"><a href="#kafka的特性" class="headerlink" title="kafka的特性"></a>kafka的特性</h3><ul>
+<li>消息持久化</li>
+<li>高吞吐量(Kafka 支持每秒数百万级别的消息。)</li>
+<li>消息持久化</li>
+<li>扩展性(Kafka 依赖 ZooKeeper来对集群进行协调管理，这样使得 Kafka 更加容易进行水平扩展，生产者、消费者和代理都为分布式，可配置多个。)</li>
+<li>完善的数据备份机制</li>
+<li>轻量级</li>
+<li>消息压缩</li>
+</ul>
+<h3 id="kafka的应用场景"><a href="#kafka的应用场景" class="headerlink" title="kafka的应用场景"></a>kafka的应用场景</h3><ul>
+<li>消息系统。<em>Kafka 作为一款优秀的消息系统，具有高吞吐量、内置的分区、备份冗余分布式等特点，为大规模消息处理提供了一种很好的解决方案。</em></li>
+<li>应用监控。<em>。利用Kafka 采集应用程序和服务器健康相关的指标，如CPU 占用率、IO、内存、连接数、TPS、QPS 等，然后将指标信息进行处理，从而构建一个具有监控仪表盘、曲线图等可视化监控系统。例如，很多公司采用Kafka 与ELK（ElasticSearch、Logstash 和Kibana）整合构建应用服务监控系统。</em></li>
+<li>网站用户行为追踪 <em>。为了更好地了解用户行为、操作习惯，改善用户体验，进而对产品升级改进，将用户操作轨迹、内容等信息发送到Kafka 集群上，通过Hadoop、Spark 或Strom等进行数据分析处理，生成相应的统计报告，为推荐系统推荐对象建模提供数据源，进而为每个用户进行个性化推荐。</em></li>
+<li>持久性日志。<em>Kafka 可以为外部系统提供一种持久性日志的分布式系统。日志可以在多个节点间进行备份，Kafka 为故障节点数据恢复提供了一种重新同步的机制。同时，Kafka很方便与HDFS 和Flume 进行整合，这样就方便将Kafka 采集的数据持久化到其他外部系统。</em></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/kafka/" rel="tag"># kafka</a>
+          
+            <a href="/tags/分布式消息组件/" rel="tag"># 分布式消息组件</a>
+          
+            <a href="/tags/高并发/" rel="tag"># 高并发</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/17/spring-Boot/" rel="next" title="Spring Boot简述">
+                <i class="fa fa-chevron-left"></i> Spring Boot简述
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/03/17/kafka2/" rel="prev" title="kafka 高并发下如何防止数据丢失">
+                kafka 高并发下如何防止数据丢失 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/headph.jpg" alt="vino-jay">
+            
+              <p class="site-author-name" itemprop="name">vino-jay</p>
+              <div class="site-description motion-element" itemprop="description">凡不能毁灭我的，将使我更强大</div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Kafka是什么？"><span class="nav-number">1.</span> <span class="nav-text">Kafka是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#kafka背景"><span class="nav-number">2.</span> <span class="nav-text">kafka背景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#kafka的基本概念"><span class="nav-number">3.</span> <span class="nav-text">kafka的基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#主题"><span class="nav-number">3.1.</span> <span class="nav-text">主题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#消息"><span class="nav-number">3.2.</span> <span class="nav-text">消息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#分区和副本"><span class="nav-number">3.3.</span> <span class="nav-text">分区和副本</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Leader-副本和Follower-副本"><span class="nav-number">3.4.</span> <span class="nav-text">Leader 副本和Follower 副本</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#偏移量"><span class="nav-number">3.5.</span> <span class="nav-text">偏移量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#日志段"><span class="nav-number">3.6.</span> <span class="nav-text">日志段</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#代理"><span class="nav-number">3.7.</span> <span class="nav-text">代理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#生产者"><span class="nav-number">3.8.</span> <span class="nav-text">生产者</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#消费者"><span class="nav-number">3.9.</span> <span class="nav-text">消费者</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ISR"><span class="nav-number">3.10.</span> <span class="nav-text">ISR</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ZooKeeper"><span class="nav-number">3.11.</span> <span class="nav-text">ZooKeeper</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#kafka的设计动机"><span class="nav-number">4.</span> <span class="nav-text">kafka的设计动机</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#kafka的特性"><span class="nav-number">5.</span> <span class="nav-text">kafka的特性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#kafka的应用场景"><span class="nav-number">6.</span> <span class="nav-text">kafka的应用场景</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">vino-jay</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.0.1</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.1"></script>
+
+  <script src="/js/src/motion.js?v=7.0.1"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=7.0.1"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=7.0.1"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.1"></script>
+<script src="/js/src/post-details.js?v=7.0.1"></script>
+
+
+
+  
+
+
+  <script src="/js/src/next-boot.js?v=7.0.1"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
