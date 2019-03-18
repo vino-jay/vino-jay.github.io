@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.1" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.0.1',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前言：  在一次迭代上，产品提出了一个需求：登录的用户能够收到提醒【存在未处理的单据，请及时处理！】。后面经过讨论，以及查阅相关资料，有两种方案：   说是沿用老系统的方法，前台定时去轮询后台， 若存在未处理的单据，则实时在主页面弹框提醒。 使用websocket，不过需要自己去摸索，优点是可以后台与前台进行对话，性能比第一种方案好。  最终功能由我来做，毫不犹豫选择用websocket，拥抱新技">
+<meta name="keywords" content="java,websocket,springMvc,通信协议">
+<meta property="og:type" content="article">
+<meta property="og:title" content="websocket开发示例">
+<meta property="og:url" content="https://vino-jay.github.io/2019/03/18/websocketDemo/index.html">
+<meta property="og:site_name" content="vino-jay的技术博客">
+<meta property="og:description" content="前言：  在一次迭代上，产品提出了一个需求：登录的用户能够收到提醒【存在未处理的单据，请及时处理！】。后面经过讨论，以及查阅相关资料，有两种方案：   说是沿用老系统的方法，前台定时去轮询后台， 若存在未处理的单据，则实时在主页面弹框提醒。 使用websocket，不过需要自己去摸索，优点是可以后台与前台进行对话，性能比第一种方案好。  最终功能由我来做，毫不犹豫选择用websocket，拥抱新技">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://vino-jay.github.io/images/websocket1.png">
+<meta property="og:image" content="https://vino-jay.github.io/images/websocket2.png">
+<meta property="og:updated_time" content="2019-03-18T15:11:52.700Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="websocket开发示例">
+<meta name="twitter:description" content="前言：  在一次迭代上，产品提出了一个需求：登录的用户能够收到提醒【存在未处理的单据，请及时处理！】。后面经过讨论，以及查阅相关资料，有两种方案：   说是沿用老系统的方法，前台定时去轮询后台， 若存在未处理的单据，则实时在主页面弹框提醒。 使用websocket，不过需要自己去摸索，优点是可以后台与前台进行对话，性能比第一种方案好。  最终功能由我来做，毫不犹豫选择用websocket，拥抱新技">
+<meta name="twitter:image" content="https://vino-jay.github.io/images/websocket1.png">
+
+
+
+
+
+
+  <link rel="canonical" href="https://vino-jay.github.io/2019/03/18/websocketDemo/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>websocket开发示例 | vino-jay的技术博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">vino-jay的技术博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>随笔</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/18/websocketDemo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="vino-jay">
+      <meta itemprop="description" content="凡不能毁灭我的，将使我更强大">
+      <meta itemprop="image" content="/images/headph.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="vino-jay的技术博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">websocket开发示例
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-03-18 21:12:39 / 修改时间：23:11:52" itemprop="dateCreated datePublished" datetime="2019-03-18T21:12:39+08:00">2019-03-18</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>前言：</p>
+<blockquote>
+<p>在一次迭代上，产品提出了一个需求：登录的用户能够收到提醒【存在未处理的单据，请及时处理！】。后面经过讨论，以及查阅相关资料，有两种方案：</p>
+</blockquote>
+<ul>
+<li>说是沿用老系统的方法，前台定时去轮询后台， 若存在未处理的单据，则实时在主页面弹框提醒。</li>
+<li>使用websocket，不过需要自己去摸索，优点是可以后台与前台进行对话，性能比第一种方案好。</li>
+</ul>
+<p><strong><em>最终功能由我来做，毫不犹豫选择用websocket，拥抱新技术和挑战</em></strong></p>
+<h3 id="websocket是什么？"><a href="#websocket是什么？" class="headerlink" title="websocket是什么？"></a>websocket是什么？</h3><blockquote>
+<p>HTML5开始提供的一种浏览器与服务器进行全双工通讯的网络技术，属于应用层协议。它基于TCP传输协议，并复用HTTP的握手通道。</p>
+</blockquote>
+<a id="more"></a>
+<p>对大部分web开发者来说，上面这段描述有点枯燥，其实只要记住几点：</p>
+<ul>
+<li>WebSocket可以在浏览器里使用</li>
+<li>支持双向通信</li>
+<li>使用很简单</li>
+</ul>
+<h3 id="websocket优点"><a href="#websocket优点" class="headerlink" title="websocket优点"></a>websocket优点</h3><ul>
+<li>支持双向通信，实时性更强。</li>
+<li>更好的二进制支持。</li>
+<li>较少的控制开销。连接创建后，ws客户端、服务端进行数据交换时，协议控制的数据包头部较小。在不包含头部的情况下，服务端到客户端的包头只有2~10字节（取决于数据包长度），客户端到服务端的的话，需要加上额外的4字节的掩码。而HTTP协议每次通信都需要携带完整的头部。</li>
+<li>支持扩展。ws协议定义了扩展，用户可以扩展协议，或者实现自定义的子协议。</li>
+</ul>
+<h3 id="示例演示"><a href="#示例演示" class="headerlink" title="示例演示"></a>示例演示</h3><p><strong><em>例子包括了WebSocket服务端、WebSocket客户端（网页端），这里服务端用了ws这个库。相比大家熟悉的socket.io，ws实现更轻量，更适合学习的目的</em></strong>。</p>
+<h4 id="WebSocket-客户端"><a href="#WebSocket-客户端" class="headerlink" title="WebSocket 客户端"></a>WebSocket 客户端</h4><h5 id="以下-API-用于创建-WebSocket-对象。"><a href="#以下-API-用于创建-WebSocket-对象。" class="headerlink" title="以下 API 用于创建 WebSocket 对象。"></a>以下 API 用于创建 WebSocket 对象。</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">var Socket = new WebSocket(url, [protocol] );</span><br></pre></td></tr></table></figure>
+<p>以上代码中的第一个参数 url, 指定连接的 URL。第二个参数 protocol 是可选的，指定了可接受的子协议。</p>
+<h5 id="WebSocket-事件"><a href="#WebSocket-事件" class="headerlink" title="WebSocket 事件"></a>WebSocket 事件</h5><p>以下是 WebSocket 对象的相关事件。假定我们使用了以上代码创建了 Socket 对象：</p>
+<table>
+<thead>
+<tr>
+<th>事件</th>
+<th>事件处理程序</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>open</td>
+<td>Socket.onopen</td>
+<td>连接建立时触发</td>
+</tr>
+<tr>
+<td>message</td>
+<td>Socket.onmessage</td>
+<td>客户端接收服务端数据时触发</td>
+</tr>
+<tr>
+<td>error</td>
+<td>Socket.onerror</td>
+<td>通信发生错误时触发</td>
+</tr>
+<tr>
+<td>close</td>
+<td>Socket.onclose</td>
+<td>连接关闭时触发</td>
+</tr>
+</tbody>
+</table>
+<h5 id="WebSocket-方法"><a href="#WebSocket-方法" class="headerlink" title="WebSocket 方法"></a>WebSocket 方法</h5><p>以下是 WebSocket 对象的相关方法。假定我们使用了以上代码创建了 Socket 对象：</p>
+<table>
+<thead>
+<tr>
+<th>事件</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Socket.send()</td>
+<td>使用连接发送数据</td>
+</tr>
+<tr>
+<td>Socket.close()</td>
+<td>关闭连接</td>
+</tr>
+</tbody>
+</table>
+<p>示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line">      var websocket;</span><br><span class="line">if (&apos;WebSocket&apos; in window) &#123;</span><br><span class="line">	websocket = new WebSocket(&quot;ws://&quot; + path + &quot;/ws?uid=&quot;+uid);</span><br><span class="line">&#125; else if (&apos;MozWebSocket&apos; in window) &#123;</span><br><span class="line">	websocket = new MozWebSocket(&quot;ws://&quot; + path + &quot;/ws&quot;+uid);</span><br><span class="line">&#125; else &#123;</span><br><span class="line">	websocket = new SockJS(&quot;http://&quot; + path + &quot;/ws/sockjs&quot;+uid);</span><br><span class="line">&#125;</span><br><span class="line">websocket.onopen = function(event) &#123;</span><br><span class="line">	console.log(&quot;WebSocket:已连接&quot;);</span><br><span class="line">	console.log(event);</span><br><span class="line">&#125;;</span><br><span class="line">websocket.onmessage = function(event) &#123;</span><br><span class="line">	var data=JSON.parse(event.data);</span><br><span class="line">	console.log(&quot;WebSocket:收到一条消息&quot;,data);</span><br><span class="line">	var textCss=data.from==-1?&quot;sfmsg_text&quot;:&quot;fmsg_text&quot;;</span><br><span class="line">	$(&quot;#content&quot;).append(&quot;&lt;div class=&apos;fmsg&apos;&gt;&lt;label class=&apos;name&apos;&gt;&quot;+data.fromName+&quot;&amp;nbsp;&quot;+data.date+&quot;&lt;/label&gt;&lt;div class=&apos;&quot;+textCss+&quot;&apos;&gt;&quot;+data.text+&quot;&lt;/div&gt;&lt;/div&gt;&quot;);</span><br><span class="line">	scrollToBottom();</span><br><span class="line">&#125;;</span><br><span class="line">websocket.onerror = function(event) &#123;</span><br><span class="line">	console.log(&quot;WebSocket:发生错误 &quot;);</span><br><span class="line">	console.log(event);</span><br><span class="line">&#125;;</span><br><span class="line">websocket.onclose = function(event) &#123;</span><br><span class="line">	console.log(&quot;WebSocket:已关闭&quot;);</span><br><span class="line">	console.log(event);</span><br><span class="line">&#125;</span><br><span class="line">function sendMessage()&#123;</span><br><span class="line">	var v=$(&quot;#msg&quot;).val();</span><br><span class="line">	if(v==&quot;&quot;)&#123;</span><br><span class="line">		return;</span><br><span class="line">	&#125;else&#123;</span><br><span class="line">		var data=&#123;&#125;;</span><br><span class="line">		data[&quot;from&quot;]=from;</span><br><span class="line">		data[&quot;fromName&quot;]=fromName;</span><br><span class="line">		data[&quot;to&quot;]=to;</span><br><span class="line">		data[&quot;text&quot;]=v;</span><br><span class="line">		websocket.send(JSON.stringify(data));</span><br><span class="line">		$(&quot;#content&quot;).append(&quot;&lt;div class=&apos;tmsg&apos;&gt;&lt;label class=&apos;name&apos;&gt;我&amp;nbsp;&quot;+new Date().Format(&quot;yyyy-MM-dd hh:mm:ss&quot;)+&quot;&lt;/label&gt;&lt;div class=&apos;tmsg_text&apos;&gt;&quot;+data.text+&quot;&lt;/div&gt;&lt;/div&gt;&quot;);</span><br><span class="line">		scrollToBottom();</span><br><span class="line">		$(&quot;#msg&quot;).val(&quot;&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function send(event)&#123;</span><br><span class="line">	var code;</span><br><span class="line">	 if(window.event)&#123;</span><br><span class="line">		 code = window.event.keyCode; // IE</span><br><span class="line">	 &#125;else&#123;</span><br><span class="line">		 code = e.which; // Firefox</span><br><span class="line">	 &#125;</span><br><span class="line">	if(code==13)&#123;</span><br><span class="line">		sendMessage();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="WebSocket-服务端"><a href="#WebSocket-服务端" class="headerlink" title="WebSocket 服务端"></a>WebSocket 服务端</h4><p>本文的示例以java语言，Spring 框架对 WebSocket 也提供了支持。首先在web项目中增加Spring对于WebSocket支持的jar包：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- 使用spring websocket依赖的jar包 --&gt;</span><br><span class="line">    &lt;dependency&gt;</span><br><span class="line">      &lt;groupId&gt;org.springframework&lt;/groupId&gt;</span><br><span class="line">      &lt;artifactId&gt;spring-websocket&lt;/artifactId&gt;</span><br><span class="line">      &lt;version&gt;$&#123;spring.version&#125;&lt;/version&gt;</span><br><span class="line">    &lt;/dependency&gt;</span><br></pre></td></tr></table></figure></p>
+<h5 id="配置-WebSocket"><a href="#配置-WebSocket" class="headerlink" title="配置 WebSocket"></a>配置 WebSocket</h5><ul>
+<li>配置有两种方式：注解和xml其作用就是将 WebSocket 处理器添加到注册中心，实现接口来配置Websocket请求的路径和拦截器。本文使用注解方式：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">@Configuration</span><br><span class="line">@EnableWebSocket</span><br><span class="line">public class SringWebSocketConfig extends WebMvcConfigurerAdapter implements WebSocketConfigurer &#123;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    public WebSocketHandler webSocketHandler() &#123;</span><br><span class="line">        return new SpringWebSocketHandler();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) &#123;</span><br><span class="line">        registry.addHandler(webSocketHandler(), &quot;/ws&quot;).addInterceptors(new SpringWebSocketHandShake());</span><br><span class="line">        registry.addHandler(webSocketHandler(), &quot;/ws/sockjs&quot;).addInterceptors(new SpringWebSocketHandShake()).withSockJS();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h5 id="创建-WebSocket-握手拦截器"><a href="#创建-WebSocket-握手拦截器" class="headerlink" title="创建 WebSocket 握手拦截器"></a>创建 WebSocket 握手拦截器</h5><ul>
+<li>握手拦截器，用来记录用户标识，便于后面向特定用户发送消息</li>
+</ul>
+<pre><code>public class SpringWebSocketHandShake implements HandshakeInterceptor {
+    @Override
+    public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
+                                   Map&lt;String, Object&gt; attributes) throws Exception {
+        System.out.println(&quot;Websocket:用户[ID:&quot;
+                + ((ServletServerHttpRequest) request).getServletRequest().getSession(false).getAttribute(&quot;uid&quot;)
+                + &quot;]已经建立连接&quot;);
+        if (request instanceof ServletServerHttpRequest) {
+            ServletServerHttpRequest servletRequest = (ServletServerHttpRequest) request;
+            HttpSession session = servletRequest.getServletRequest().getSession(false);
+            // 标记用户
+            Long uid = (Long) session.getAttribute(&quot;uid&quot;);
+            if (uid != null) {
+                attributes.put(&quot;uid&quot;, uid);
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
+                               Exception exception) {
+    }
+
+}
+
+</code></pre><h5 id="WebSocket处理器"><a href="#WebSocket处理器" class="headerlink" title="WebSocket处理器"></a>WebSocket处理器</h5><ul>
+<li>该处理器提供了客户端连接,关闭,错误,发送等方法,重写这几个方法即可实现自定义业务逻辑</li>
+</ul>
+<pre><code>public class SpringWebSocketHandShake implements HandshakeInterceptor {
+    private static final Logger logger = LoggerFactory.getLogger(SpringWebSocketHandler.class);
+    // 注意这里要使用ConcurrentHashMap，线程安全的
+    private static Map&lt;Long, Set&lt;WebSocketSession&gt;&gt; userSocketSessionMap = new ConcurrentHashMap&lt;&gt;();
+
+    /**
+         * 建立连接后
+         */
+        @Override
+        public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+            Long uid = (Long) session.getAttributes().get(&quot;uid&quot;);
+            logger.info(&quot;Session {} connected.&quot;, uid);
+
+            // 如果是新 Session，记录进 Map
+            boolean isNewUser = true;
+            for (Object o : userSocketSessionMap.entrySet()) {
+                Entry entry = (Entry) o;
+                Long key = (Long) entry.getKey();
+                if (key.equals(uid)) {
+                    userSocketSessionMap.get(uid).add(session);
+                    isNewUser = false;
+                    break;
+                }
+            }
+            if (isNewUser) {
+                Set&lt;WebSocketSession&gt; sessions = new HashSet&lt;&gt;();
+                sessions.add(session);
+                userSocketSessionMap.put(uid, sessions);
+            }
+            logger.info(&quot;当前在线用户数: {}&quot;, userSocketSessionMap.values().size());
+        }
+
+        /**
+         * 消息处理，在客户端通过Websocket API发送的消息会经过这里，然后进行相应的处理
+         */
+        @Override
+        public void handleMessage(WebSocketSession session, WebSocketMessage&lt;?&gt; message) throws Exception {
+            if (message.getPayloadLength() == 0) {
+                return;
+            }
+            WebSocketMsg msg = new Gson().fromJson(message.getPayload().toString(), WebSocketMsg.class);
+            msg.setDate(new Date());
+            sendMessageToUser(msg.getTo(),
+                    new TextMessage(new GsonBuilder().setDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;).create().toJson(msg)));
+        }
+
+        /**
+         * 消息传输错误处理
+         */
+        @Override
+        public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+            if (session.isOpen()) {
+                session.close();
+            }
+            // 移除Socket会话
+            for (Set&lt;WebSocketSession&gt; item : userSocketSessionMap.values()) {
+                if (item.contains(session)) {
+                    // 删除连接 session
+                    item.remove(session);
+                    // 如果 userId 对应的 session 数为 0 ，删除该 userId 对应的记录
+                    if (0 == item.size()) {
+                        userSocketSessionMap.values().remove(item);
+                    }
+                    break;
+                }
+            }
+        }
+
+        /**
+         * 关闭连接后
+         */
+        @Override
+        public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
+            logger.info(&quot;Session {} disconnected. Because of {}&quot;, session.getId(), closeStatus);
+            for (Set&lt;WebSocketSession&gt; item : userSocketSessionMap.values()) {
+                if (item.contains(session)) {
+                    // 删除连接 session
+                    item.remove(session);
+                    // 如果 userId 对应的 session 数为 0 ，删除该 userId 对应的记录
+                    if (0 == item.size()) {
+                        userSocketSessionMap.values().remove(item);
+                    }
+                    break;
+                }
+            }
+            logger.info(&quot;当前在线用户数: {}&quot;, userSocketSessionMap.values().size());
+        }
+
+        @Override
+        public boolean supportsPartialMessages() {
+            return false;
+        }
+
+        /**
+         * 给所有在线用户发送消息
+         *
+         * @param message
+         * @throws IOException
+         */
+        public void broadCast(final TextMessage message) throws IOException {
+            // 多线程群发
+            for(Set&lt;WebSocketSession&gt; item : userSocketSessionMap.values()) {
+                for (final WebSocketSession session : item) {
+                    if (session.isOpen()) {
+                        ScheduledExecutorService executorService = new ScheduledThreadPoolExecutor(1,
+                            new BasicThreadFactory.Builder().namingPattern(&quot;socket-schedule-pool-%d&quot;).daemon(true).build());
+                        for (int i = 0; i &lt; 3; i++) {
+                            executorService.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        if (session.isOpen()) {
+                                            logger.debug(&quot;broadcast output:&quot; + message.toString());
+                                            session.sendMessage(message);
+                                        }
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
+        /**
+         * 给某个用户发送消息
+         *
+         * @param message
+         * @throws IOException
+         */
+        private void sendMessageToUser(Long uid, TextMessage message) throws IOException {
+            for (Long id : userSocketSessionMap.keySet()) {
+                if (id.equals(uid)) {
+                    for (WebSocketSession session : userSocketSessionMap.get(uid)) {
+                        try {
+                            logger.info(&quot;SendAll: {}&quot;, message);
+                            session.sendMessage(message);
+                        } catch (Exception e) {
+                            logger.error(e.toString());
+                        }
+                    }
+                }
+            }
+        }
+
+ }   
+
+
+</code></pre><h5 id="新建controller-处理页面请求"><a href="#新建controller-处理页面请求" class="headerlink" title="新建controller 处理页面请求"></a>新建controller 处理页面请求</h5><pre><code>@Controller
+@RequestMapping(&quot;/message&quot;)
+public class MessageController {
+
+    @Resource
+    private SpringWebSocketHandler handler;
+
+    Map&lt;Long, NbaPlayer&gt; nbaPlayers = new HashMap&lt;&gt;();
+
+    // 模拟一些数据
+    @ModelAttribute
+    public void setReqAndRes() {
+        NbaPlayer kebe = new NbaPlayer();
+        kebe.setId(24L);
+        kebe.setName(&quot;科比&quot;);
+        nbaPlayers.put(kebe.getId(), kebe);
+
+        NbaPlayer james = new NbaPlayer();
+        james.setId(23L);
+        james.setName(&quot;詹姆斯&quot;);
+        nbaPlayers.put(james.getId(), james);
+
+    }
+
+    // 用户登录
+    @RequestMapping(value = &quot;login&quot;, method = RequestMethod.POST)
+    public ModelAndView doLogin(NbaPlayer player, HttpServletRequest request) {
+        request.getSession().setAttribute(&quot;uid&quot;, player.getId());
+        request.getSession().setAttribute(&quot;name&quot;, nbaPlayers.get(player.getId()).getName());
+        return new ModelAndView(&quot;redirect:talk&quot;);
+    }
+
+    // 跳转到交谈聊天页面
+    @RequestMapping(value = &quot;talk&quot;, method = RequestMethod.GET)
+    public ModelAndView talk() {
+        return new ModelAndView(&quot;talk&quot;);
+    }
+
+    // 跳转到发布广播页面
+    @RequestMapping(value = &quot;broadcast&quot;, method = RequestMethod.GET)
+    public ModelAndView broadcast() {
+        return new ModelAndView(&quot;broadcast&quot;);
+    }
+
+    // 发布系统广播（群发）
+    @ResponseBody
+    @RequestMapping(value = &quot;broadcast&quot;, method = RequestMethod.POST)
+    public void broadcast(@RequestBody String text) throws IOException {
+        WebSocketMsg msg = new WebSocketMsg();
+        msg.setDate(new Date());
+        msg.setFrom(-1L);
+        msg.setFromName(&quot;系统广播&quot;);
+        msg.setTo(0L);
+        msg.setText(text);
+        handler.broadCast(new TextMessage(new GsonBuilder().setDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;).create().toJson(msg)));
+    }
+
+}
+
+</code></pre><h4 id="项目启动后，用户登录，我这里模拟的是著名nba运动员-科比、詹姆斯的对话，纯属自娱！"><a href="#项目启动后，用户登录，我这里模拟的是著名nba运动员-科比、詹姆斯的对话，纯属自娱！" class="headerlink" title="项目启动后，用户登录，我这里模拟的是著名nba运动员 科比、詹姆斯的对话，纯属自娱！"></a>项目启动后，用户登录，我这里模拟的是著名nba运动员 科比、詹姆斯的对话，纯属自娱！</h4><p>詹姆斯、科比登录后，詹姆斯先发话：如下图<br><img src="/images/websocket1.png" alt="图1" title="示例图片"></p>
+<p>科比回应：如下图<br><img src="/images/websocket2.png" alt="图2" title="示例图片"></p>
+<h3 id="结束语"><a href="#结束语" class="headerlink" title="结束语"></a>结束语</h3><p>至此，本文示例介绍完毕！有问题的可以邮箱联系我，后续再开放留言功能。<br>本文示例的github地址：<a href="https://github.com/vino-jay/websocketdemo" target="_blank" rel="noopener">https://github.com/vino-jay/websocketdemo</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/java/" rel="tag"># java</a>
+          
+            <a href="/tags/websocket/" rel="tag"># websocket</a>
+          
+            <a href="/tags/springMvc/" rel="tag"># springMvc</a>
+          
+            <a href="/tags/通信协议/" rel="tag"># 通信协议</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/18/kafkaEnv/" rel="next" title="kafka环境搭建">
+                <i class="fa fa-chevron-left"></i> kafka环境搭建
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/headph.jpg" alt="vino-jay">
+            
+              <p class="site-author-name" itemprop="name">vino-jay</p>
+              <div class="site-description motion-element" itemprop="description">凡不能毁灭我的，将使我更强大</div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">12</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#websocket是什么？"><span class="nav-number">1.</span> <span class="nav-text">websocket是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#websocket优点"><span class="nav-number">2.</span> <span class="nav-text">websocket优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例演示"><span class="nav-number">3.</span> <span class="nav-text">示例演示</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#WebSocket-客户端"><span class="nav-number">3.1.</span> <span class="nav-text">WebSocket 客户端</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#以下-API-用于创建-WebSocket-对象。"><span class="nav-number">3.1.1.</span> <span class="nav-text">以下 API 用于创建 WebSocket 对象。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#WebSocket-事件"><span class="nav-number">3.1.2.</span> <span class="nav-text">WebSocket 事件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#WebSocket-方法"><span class="nav-number">3.1.3.</span> <span class="nav-text">WebSocket 方法</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#WebSocket-服务端"><span class="nav-number">3.2.</span> <span class="nav-text">WebSocket 服务端</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#配置-WebSocket"><span class="nav-number">3.2.1.</span> <span class="nav-text">配置 WebSocket</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#创建-WebSocket-握手拦截器"><span class="nav-number">3.2.2.</span> <span class="nav-text">创建 WebSocket 握手拦截器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#WebSocket处理器"><span class="nav-number">3.2.3.</span> <span class="nav-text">WebSocket处理器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#新建controller-处理页面请求"><span class="nav-number">3.2.4.</span> <span class="nav-text">新建controller 处理页面请求</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#项目启动后，用户登录，我这里模拟的是著名nba运动员-科比、詹姆斯的对话，纯属自娱！"><span class="nav-number">3.3.</span> <span class="nav-text">项目启动后，用户登录，我这里模拟的是著名nba运动员 科比、詹姆斯的对话，纯属自娱！</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#结束语"><span class="nav-number">4.</span> <span class="nav-text">结束语</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">vino-jay</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.0.1</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.1"></script>
+
+  <script src="/js/src/motion.js?v=7.0.1"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=7.0.1"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=7.0.1"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.1"></script>
+<script src="/js/src/post-details.js?v=7.0.1"></script>
+
+
+
+  
+
+
+  <script src="/js/src/next-boot.js?v=7.0.1"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

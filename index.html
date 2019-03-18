@@ -324,6 +324,166 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/18/websocketDemo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="vino-jay">
+      <meta itemprop="description" content="凡不能毁灭我的，将使我更强大">
+      <meta itemprop="image" content="/images/headph.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="vino-jay的技术博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/03/18/websocketDemo/" class="post-title-link" itemprop="url">websocket开发示例</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-03-18 21:12:39 / 修改时间：23:11:52" itemprop="dateCreated datePublished" datetime="2019-03-18T21:12:39+08:00">2019-03-18</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>前言：</p>
+<blockquote>
+<p>在一次迭代上，产品提出了一个需求：登录的用户能够收到提醒【存在未处理的单据，请及时处理！】。后面经过讨论，以及查阅相关资料，有两种方案：</p>
+</blockquote>
+<ul>
+<li>说是沿用老系统的方法，前台定时去轮询后台， 若存在未处理的单据，则实时在主页面弹框提醒。</li>
+<li>使用websocket，不过需要自己去摸索，优点是可以后台与前台进行对话，性能比第一种方案好。</li>
+</ul>
+<p><strong><em>最终功能由我来做，毫不犹豫选择用websocket，拥抱新技术和挑战</em></strong></p>
+<h3 id="websocket是什么？"><a href="#websocket是什么？" class="headerlink" title="websocket是什么？"></a>websocket是什么？</h3><blockquote>
+<p>HTML5开始提供的一种浏览器与服务器进行全双工通讯的网络技术，属于应用层协议。它基于TCP传输协议，并复用HTTP的握手通道。</p>
+</blockquote>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/03/18/websocketDemo/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/18/kafkaEnv/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -369,7 +529,7 @@
                 
               
 
-              <time title="创建时间：2019-03-18 11:24:34 / 修改时间：14:13:36" itemprop="dateCreated datePublished" datetime="2019-03-18T11:24:34+08:00">2019-03-18</time>
+              <time title="创建时间：2019-03-18 12:24:34 / 修改时间：21:13:13" itemprop="dateCreated datePublished" datetime="2019-03-18T12:24:34+08:00">2019-03-18</time>
             
 
             
@@ -409,204 +569,22 @@
 
       
         
-          
-            <p>上文已经简要阐述了kafka的各个组件，接下来将根据本人的实操经验，总结出基本的kafka环境搭建。<br><strong>准备环境：</strong></p>
+          <p>上文已经简要阐述了kafka的各个组件，接下来将根据本人的实操经验，总结出基本的kafka环境搭建。<br><strong>准备环境：</strong></p>
 <ul>
 <li>操作系统：windows7</li>
 <li>jdk1.8</li>
 <li>zookeeper</li>
 <li>kafka</li>
 <li>scala(若要看源码，则需要安装，并配置系统变量<strong><em>SCALA_HOME</em></strong>)</li>
-<li>gradle(若要看源码，则需要安装，并配置系统变量<strong><em>GRADLE_HOME</em></strong>)<br><strong><em>本文主要参照了书籍 &gt; kafka入门与实践</em></strong><h3 id="第一步-配置jdk1-8"><a href="#第一步-配置jdk1-8" class="headerlink" title="第一步 配置jdk1.8"></a>第一步 配置jdk1.8</h3></li>
-<li>可以去官网下载jdk安装包，本地版本是1.8.0_66,安装后，如下图<br><img src="/images/kfk1.png" alt="图1" title="示例图片"></li>
-<li>配置JAVA_HOME,相信开发的各位基本上都已经配置,或者按照百度的教程一步步操作即可<h3 id="第二步-安装zookeeper"><a href="#第二步-安装zookeeper" class="headerlink" title="第二步 安装zookeeper"></a>第二步 安装zookeeper</h3></li>
-<li>可以去官网下载zookeeper安装包，本地版本是zookeeper-3.4.13</li>
-<li>将安装包解压到本地，我本地是放在D:\software下，后面的几个组件都是放在该路径下，方便后续使用。</li>
-<li><p>将conf目录下的zoo_sample.cfg复制一份，将其名称修改为zoo.cfg，然后打开，指定dataDir=E:/zookeeper/data，dataLogDir=E:/zookeeper/logs，比如我的配置如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">tickTime=2000</span><br><span class="line">initLimit=10</span><br><span class="line">syncLimit=5</span><br><span class="line">dataDir=E:/zookeeper/data</span><br><span class="line">dataLogDir=E:/zookeeper/logs</span><br><span class="line">clientPort=2181</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>进入D:\software\zookeeper-3.4.13\bin目录下<br><img src="/images/kfk2.png" alt="图2" title="示例图片"></p>
-</li>
-<li>添加zookeeper环境变量：<br><br><br>ZOOKEEPER_HOME：D:\software\zookeeper-3.4.13，Path中追加 ;%ZOOKEEPER_HOME%\bin;</li>
-<li>然后双击bin目录下的zkServer.cmd即可启动zookeeper：启动成功后，如下图2，默认占用的端口号为2181<br><img src="/images/kfk3.png" alt="图3" title="示例图片"></li>
-</ul>
-<h3 id="第三步-安装kafka"><a href="#第三步-安装kafka" class="headerlink" title="第三步 安装kafka"></a>第三步 安装kafka</h3><ul>
-<li>可以去官网下载zookeeper安装包，本地版本是kafka_2.11-2.1.1</li>
-<li>解压到D:\software后，打开server.properties文件，找到log.dirs配置项，修改为log.dirs=E:/kafka/kafka-logs</li>
-<li>在安装目录下进入到\bin\windows，shift+右键，“在此处打开命令窗口”，开启一个CMD命令行窗口，输入<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kafka-server-start.bat ../../config/server.properties</span><br></pre></td></tr></table></figure>
+<li>gradle(若要看源码，则需要安装，并配置系统变量<strong><em>GRADLE_HOME</em></strong>)<br><strong><em>本文主要参照了书籍</em></strong> <blockquote>
+<p>kafka入门与实践</p>
+</blockquote>
 </li>
 </ul>
-<p>如下图4：kafka启动成功<br><img src="/images/kfk4.png" alt="图4" title="示例图片"></p>
-<h3 id="第四步-创建一个主题topics"><a href="#第四步-创建一个主题topics" class="headerlink" title="第四步 创建一个主题topics"></a>第四步 创建一个主题topics</h3><ul>
-<li>创建topic vinoTest ，默认一个分区 partitions，一个副本 replication-factor</li>
-<li>在D:\software\kafka_2.11-2.1.1\bin\windows目录下，开启cmd窗口，输入<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kafka-topics.bat --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic vinoTest</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>如下图5：创建topic成功<br><img src="/images/kfk5.png" alt="图5" title="示例图片"></p>
-<h3 id="第五步-创建一个生产者producer"><a href="#第五步-创建一个生产者producer" class="headerlink" title="第五步 创建一个生产者producer"></a>第五步 创建一个生产者producer</h3><ul>
-<li>创建生产者producer</li>
-<li>在D:\software\kafka_2.11-2.1.1\bin\windows目录下，开启cmd窗口，输入<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kafka-console-producer.bat --broker-list localhost:9092 --topic vinoTest</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>如下图6：创建producer成功，光标会在窗口闪烁，表示等待输入消息，如下图<br><img src="/images/kfk6.png" alt="图6" title="示例图片"></p>
-<h3 id="第六步-创建一个消费者consumer"><a href="#第六步-创建一个消费者consumer" class="headerlink" title="第六步 创建一个消费者consumer"></a>第六步 创建一个消费者consumer</h3><ul>
-<li>消费者consumer </li>
-<li>在D:\software\kafka_2.11-2.1.1\bin\windows目录下，开启cmd窗口，输入</li>
-<li><strong><em>注意：我这里的生产和消费的端口都是9092</em></strong><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic vinoTest --from-beginning</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>如下图7：创建producer成功<br><img src="/images/kfk7.png" alt="图7" title="示例图片"></p>
-<h3 id="第七步，模拟生产和消费消息"><a href="#第七步，模拟生产和消费消息" class="headerlink" title="第七步，模拟生产和消费消息"></a>第七步，模拟生产和消费消息</h3><ul>
-<li>在第五步打开的生产者cmd窗口输入welcome to kafka</li>
-<li>在第六步打开的消费者cmd窗口可实时看到消息输出<br>如图8所示，到此，一个简单的kafka生产和消费场景模拟出来了，后续大家可以尝试集群模式下的消息。<br><img src="/images/kfk8.png" alt="图8" title="示例图片"></li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/17/kafka2/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="vino-jay">
-      <meta itemprop="description" content="凡不能毁灭我的，将使我更强大">
-      <meta itemprop="image" content="/images/headph.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="vino-jay的技术博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/03/17/kafka2/" class="post-title-link" itemprop="url">kafka 高并发下如何防止数据丢失</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2019-03-17 18:28:28 / 修改时间：20:08:00" itemprop="dateCreated datePublished" datetime="2019-03-17T18:28:28+08:00">2019-03-17</time>
-            
-
-            
-              
-
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p><strong>上文主要描述了kafka的基本概念，很清楚kafka是一个具有高并发处理能力的消息框架。那么，在现在分布式环境下，各类系统总会出现数据丢失的情况，很是棘手，那kafka又是如何解决此问题的呢？</strong></p>
-<h3 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h3><p>在 Kafka 里面，有一个核心的概念叫做“Topic”，这个Topic你就姑且认为是一个数据集合吧。topic里面如果每天写入几十TB的数据，你觉得都放一台机器上靠谱吗？<br>明显不太靠谱。万一机器宕机，后果可想而知。</p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2019/03/17/kafka2/#more" rel="contents">
+              <a class="btn" href="/2019/03/18/kafkaEnv/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -666,7 +644,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/17/kafka1/">
+    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/16/kafka2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="vino-jay">
@@ -686,7 +664,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2019/03/17/kafka1/" class="post-title-link" itemprop="url">kafka 简述</a>
+                <a href="/2019/03/16/kafka2/" class="post-title-link" itemprop="url">kafka 高并发下如何防止数据丢失</a>
               
             
           </h1>
@@ -711,12 +689,186 @@
                 
               
 
-              <time title="创建时间：2019-03-17 17:18:32 / 修改时间：18:27:01" itemprop="dateCreated datePublished" datetime="2019-03-17T17:18:32+08:00">2019-03-17</time>
+              <time title="创建时间：2019-03-16 18:28:28" itemprop="dateCreated datePublished" datetime="2019-03-16T18:28:28+08:00">2019-03-16</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-03-18 14:24:46" itemprop="dateModified" datetime="2019-03-18T14:24:46+08:00">2019-03-18</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p><strong>上文主要描述了kafka的基本概念，很清楚kafka是一个具有高并发处理能力的消息框架。那么，在现在分布式环境下，各类系统总会出现数据丢失的情况，很是棘手，那kafka又是如何解决此问题的呢？</strong></p>
+<h3 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h3><p>在 Kafka 里面，有一个核心的概念叫做“Topic”，这个Topic你就姑且认为是一个数据集合吧。topic里面如果每天写入几十TB的数据，你觉得都放一台机器上靠谱吗？<br>明显不太靠谱。万一机器宕机，后果可想而知。</p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/03/16/kafka2/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/15/kafka1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="vino-jay">
+      <meta itemprop="description" content="凡不能毁灭我的，将使我更强大">
+      <meta itemprop="image" content="/images/headph.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="vino-jay的技术博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/03/15/kafka1/" class="post-title-link" itemprop="url">kafka 简述</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-03-15 22:18:32" itemprop="dateCreated datePublished" datetime="2019-03-15T22:18:32+08:00">2019-03-15</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-03-18 21:13:52" itemprop="dateModified" datetime="2019-03-18T21:13:52+08:00">2019-03-18</time>
               
             
           </span>
@@ -760,7 +912,7 @@
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2019/03/17/kafka1/#more" rel="contents">
+              <a class="btn" href="/2019/03/15/kafka1/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -820,7 +972,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/17/spring-Boot/">
+    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/12/spring-Boot/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="vino-jay">
@@ -840,7 +992,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2019/03/17/spring-Boot/" class="post-title-link" itemprop="url">Spring Boot简述</a>
+                <a href="/2019/03/12/spring-Boot/" class="post-title-link" itemprop="url">Spring Boot简述</a>
               
             
           </h1>
@@ -865,12 +1017,24 @@
                 
               
 
-              <time title="创建时间：2019-03-17 15:28:02 / 修改时间：17:24:19" itemprop="dateCreated datePublished" datetime="2019-03-17T15:28:02+08:00">2019-03-17</time>
+              <time title="创建时间：2019-03-12 20:28:02" itemprop="dateCreated datePublished" datetime="2019-03-12T20:28:02+08:00">2019-03-12</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-03-18 21:13:43" itemprop="dateModified" datetime="2019-03-18T21:13:43+08:00">2019-03-18</time>
               
             
           </span>
@@ -919,7 +1083,7 @@
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2019/03/17/spring-Boot/#more" rel="contents">
+              <a class="btn" href="/2019/03/12/spring-Boot/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -979,7 +1143,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/17/start-blog/">
+    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/10/start-blog/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="vino-jay">
@@ -999,7 +1163,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2019/03/17/start-blog/" class="post-title-link" itemprop="url">技术博客的第一天</a>
+                <a href="/2019/03/10/start-blog/" class="post-title-link" itemprop="url">技术博客的第一天</a>
               
             
           </h1>
@@ -1024,12 +1188,24 @@
                 
               
 
-              <time title="创建时间：2019-03-17 14:14:26 / 修改时间：14:20:34" itemprop="dateCreated datePublished" datetime="2019-03-17T14:14:26+08:00">2019-03-17</time>
+              <time title="创建时间：2019-03-10 15:28:02" itemprop="dateCreated datePublished" datetime="2019-03-10T15:28:02+08:00">2019-03-10</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-03-18 14:24:15" itemprop="dateModified" datetime="2019-03-18T14:24:15+08:00">2019-03-18</time>
               
             
           </span>
@@ -1064,13 +1240,13 @@
 
       
         
-          <p>2019/03/17 加入博客家族第一天！</p>
+          <p>2019/03/10 加入博客家族第一天！</p>
 <h3 id="心情"><a href="#心情" class="headerlink" title="心情"></a>心情</h3><p>作为工作好几年的coder,至今才正式建立自己的博客，除了兴奋还是兴奋…</p>
 <h3 id="愿景"><a href="#愿景" class="headerlink" title="愿景"></a>愿景</h3><p>希望能够通过写博客，一方面分享自己的经验和心得，与博友们共享知识的乐趣；另一方面，加强自己的语言总结和表达能力。</p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2019/03/17/start-blog/#more" rel="contents">
+              <a class="btn" href="/2019/03/10/start-blog/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1159,7 +1335,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-count">6</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1196,7 +1372,13 @@
                     
                       
                     
-                    <span class="site-state-item-count">9</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">12</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

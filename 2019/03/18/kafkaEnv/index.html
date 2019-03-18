@@ -98,13 +98,13 @@
 
 
 
-  <meta name="description" content="上文已经简要阐述了kafka的各个组件，接下来将根据本人的实操经验，总结出基本的kafka环境搭建。准备环境：  操作系统：windows7 jdk1.8 zookeeper kafka scala(若要看源码，则需要安装，并配置系统变量SCALA_HOME) gradle(若要看源码，则需要安装，并配置系统变量GRADLE_HOME)本文主要参照了书籍 &amp;gt; kafka入门与实践第一步 配置">
+  <meta name="description" content="上文已经简要阐述了kafka的各个组件，接下来将根据本人的实操经验，总结出基本的kafka环境搭建。准备环境：  操作系统：windows7 jdk1.8 zookeeper kafka scala(若要看源码，则需要安装，并配置系统变量SCALA_HOME) gradle(若要看源码，则需要安装，并配置系统变量GRADLE_HOME)本文主要参照了书籍  kafka入门与实践">
 <meta name="keywords" content="kafka,zookeeper,scala,gradle,windows">
 <meta property="og:type" content="article">
 <meta property="og:title" content="kafka环境搭建">
 <meta property="og:url" content="https://vino-jay.github.io/2019/03/18/kafkaEnv/index.html">
 <meta property="og:site_name" content="vino-jay的技术博客">
-<meta property="og:description" content="上文已经简要阐述了kafka的各个组件，接下来将根据本人的实操经验，总结出基本的kafka环境搭建。准备环境：  操作系统：windows7 jdk1.8 zookeeper kafka scala(若要看源码，则需要安装，并配置系统变量SCALA_HOME) gradle(若要看源码，则需要安装，并配置系统变量GRADLE_HOME)本文主要参照了书籍 &amp;gt; kafka入门与实践第一步 配置">
+<meta property="og:description" content="上文已经简要阐述了kafka的各个组件，接下来将根据本人的实操经验，总结出基本的kafka环境搭建。准备环境：  操作系统：windows7 jdk1.8 zookeeper kafka scala(若要看源码，则需要安装，并配置系统变量SCALA_HOME) gradle(若要看源码，则需要安装，并配置系统变量GRADLE_HOME)本文主要参照了书籍  kafka入门与实践">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://vino-jay.github.io/images/kfk1.png">
 <meta property="og:image" content="https://vino-jay.github.io/images/kfk2.png">
@@ -114,10 +114,10 @@
 <meta property="og:image" content="https://vino-jay.github.io/images/kfk6.png">
 <meta property="og:image" content="https://vino-jay.github.io/images/kfk7.png">
 <meta property="og:image" content="https://vino-jay.github.io/images/kfk8.png">
-<meta property="og:updated_time" content="2019-03-18T06:13:36.038Z">
+<meta property="og:updated_time" content="2019-03-18T13:13:13.410Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="kafka环境搭建">
-<meta name="twitter:description" content="上文已经简要阐述了kafka的各个组件，接下来将根据本人的实操经验，总结出基本的kafka环境搭建。准备环境：  操作系统：windows7 jdk1.8 zookeeper kafka scala(若要看源码，则需要安装，并配置系统变量SCALA_HOME) gradle(若要看源码，则需要安装，并配置系统变量GRADLE_HOME)本文主要参照了书籍 &amp;gt; kafka入门与实践第一步 配置">
+<meta name="twitter:description" content="上文已经简要阐述了kafka的各个组件，接下来将根据本人的实操经验，总结出基本的kafka环境搭建。准备环境：  操作系统：windows7 jdk1.8 zookeeper kafka scala(若要看源码，则需要安装，并配置系统变量SCALA_HOME) gradle(若要看源码，则需要安装，并配置系统变量GRADLE_HOME)本文主要参照了书籍  kafka入门与实践">
 <meta name="twitter:image" content="https://vino-jay.github.io/images/kfk1.png">
 
 
@@ -377,7 +377,7 @@
                 
               
 
-              <time title="创建时间：2019-03-18 11:24:34 / 修改时间：14:13:36" itemprop="dateCreated datePublished" datetime="2019-03-18T11:24:34+08:00">2019-03-18</time>
+              <time title="创建时间：2019-03-18 12:24:34 / 修改时间：21:13:13" itemprop="dateCreated datePublished" datetime="2019-03-18T12:24:34+08:00">2019-03-18</time>
             
 
             
@@ -423,7 +423,13 @@
 <li>zookeeper</li>
 <li>kafka</li>
 <li>scala(若要看源码，则需要安装，并配置系统变量<strong><em>SCALA_HOME</em></strong>)</li>
-<li>gradle(若要看源码，则需要安装，并配置系统变量<strong><em>GRADLE_HOME</em></strong>)<br><strong><em>本文主要参照了书籍 &gt; kafka入门与实践</em></strong><h3 id="第一步-配置jdk1-8"><a href="#第一步-配置jdk1-8" class="headerlink" title="第一步 配置jdk1.8"></a>第一步 配置jdk1.8</h3></li>
+<li>gradle(若要看源码，则需要安装，并配置系统变量<strong><em>GRADLE_HOME</em></strong>)<br><strong><em>本文主要参照了书籍</em></strong> <blockquote>
+<p>kafka入门与实践</p>
+</blockquote>
+</li>
+</ul>
+<a id="more"></a>
+<h3 id="第一步-配置jdk1-8"><a href="#第一步-配置jdk1-8" class="headerlink" title="第一步 配置jdk1.8"></a>第一步 配置jdk1.8</h3><ul>
 <li>可以去官网下载jdk安装包，本地版本是1.8.0_66,安装后，如下图<br><img src="/images/kfk1.png" alt="图1" title="示例图片"></li>
 <li>配置JAVA_HOME,相信开发的各位基本上都已经配置,或者按照百度的教程一步步操作即可<h3 id="第二步-安装zookeeper"><a href="#第二步-安装zookeeper" class="headerlink" title="第二步 安装zookeeper"></a>第二步 安装zookeeper</h3></li>
 <li>可以去官网下载zookeeper安装包，本地版本是zookeeper-3.4.13</li>
@@ -510,7 +516,7 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/03/17/kafka2/" rel="next" title="kafka 高并发下如何防止数据丢失">
+              <a href="/2019/03/16/kafka2/" rel="next" title="kafka 高并发下如何防止数据丢失">
                 <i class="fa fa-chevron-left"></i> kafka 高并发下如何防止数据丢失
               </a>
             
@@ -519,6 +525,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/03/18/websocketDemo/" rel="prev" title="websocket开发示例">
+                websocket开发示例 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -589,7 +599,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-count">6</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -626,7 +636,13 @@
                     
                       
                     
-                    <span class="site-state-item-count">9</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">12</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
