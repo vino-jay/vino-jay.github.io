@@ -324,6 +324,198 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/18/kafkaEnv/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="vino-jay">
+      <meta itemprop="description" content="凡不能毁灭我的，将使我更强大">
+      <meta itemprop="image" content="/images/headph.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="vino-jay的技术博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/03/18/kafkaEnv/" class="post-title-link" itemprop="url">kafka环境搭建</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-03-18 11:24:34 / 修改时间：14:13:36" itemprop="dateCreated datePublished" datetime="2019-03-18T11:24:34+08:00">2019-03-18</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>上文已经简要阐述了kafka的各个组件，接下来将根据本人的实操经验，总结出基本的kafka环境搭建。<br><strong>准备环境：</strong></p>
+<ul>
+<li>操作系统：windows7</li>
+<li>jdk1.8</li>
+<li>zookeeper</li>
+<li>kafka</li>
+<li>scala(若要看源码，则需要安装，并配置系统变量<strong><em>SCALA_HOME</em></strong>)</li>
+<li>gradle(若要看源码，则需要安装，并配置系统变量<strong><em>GRADLE_HOME</em></strong>)<br><strong><em>本文主要参照了书籍 &gt; kafka入门与实践</em></strong><h3 id="第一步-配置jdk1-8"><a href="#第一步-配置jdk1-8" class="headerlink" title="第一步 配置jdk1.8"></a>第一步 配置jdk1.8</h3></li>
+<li>可以去官网下载jdk安装包，本地版本是1.8.0_66,安装后，如下图<br><img src="/images/kfk1.png" alt="图1" title="示例图片"></li>
+<li>配置JAVA_HOME,相信开发的各位基本上都已经配置,或者按照百度的教程一步步操作即可<h3 id="第二步-安装zookeeper"><a href="#第二步-安装zookeeper" class="headerlink" title="第二步 安装zookeeper"></a>第二步 安装zookeeper</h3></li>
+<li>可以去官网下载zookeeper安装包，本地版本是zookeeper-3.4.13</li>
+<li>将安装包解压到本地，我本地是放在D:\software下，后面的几个组件都是放在该路径下，方便后续使用。</li>
+<li><p>将conf目录下的zoo_sample.cfg复制一份，将其名称修改为zoo.cfg，然后打开，指定dataDir=E:/zookeeper/data，dataLogDir=E:/zookeeper/logs，比如我的配置如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">tickTime=2000</span><br><span class="line">initLimit=10</span><br><span class="line">syncLimit=5</span><br><span class="line">dataDir=E:/zookeeper/data</span><br><span class="line">dataLogDir=E:/zookeeper/logs</span><br><span class="line">clientPort=2181</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>进入D:\software\zookeeper-3.4.13\bin目录下<br><img src="/images/kfk2.png" alt="图2" title="示例图片"></p>
+</li>
+<li>添加zookeeper环境变量：<br><br><br>ZOOKEEPER_HOME：D:\software\zookeeper-3.4.13，Path中追加 ;%ZOOKEEPER_HOME%\bin;</li>
+<li>然后双击bin目录下的zkServer.cmd即可启动zookeeper：启动成功后，如下图2，默认占用的端口号为2181<br><img src="/images/kfk3.png" alt="图3" title="示例图片"></li>
+</ul>
+<h3 id="第三步-安装kafka"><a href="#第三步-安装kafka" class="headerlink" title="第三步 安装kafka"></a>第三步 安装kafka</h3><ul>
+<li>可以去官网下载zookeeper安装包，本地版本是kafka_2.11-2.1.1</li>
+<li>解压到D:\software后，打开server.properties文件，找到log.dirs配置项，修改为log.dirs=E:/kafka/kafka-logs</li>
+<li>在安装目录下进入到\bin\windows，shift+右键，“在此处打开命令窗口”，开启一个CMD命令行窗口，输入<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kafka-server-start.bat ../../config/server.properties</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>如下图4：kafka启动成功<br><img src="/images/kfk4.png" alt="图4" title="示例图片"></p>
+<h3 id="第四步-创建一个主题topics"><a href="#第四步-创建一个主题topics" class="headerlink" title="第四步 创建一个主题topics"></a>第四步 创建一个主题topics</h3><ul>
+<li>创建topic vinoTest ，默认一个分区 partitions，一个副本 replication-factor</li>
+<li>在D:\software\kafka_2.11-2.1.1\bin\windows目录下，开启cmd窗口，输入<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kafka-topics.bat --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic vinoTest</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>如下图5：创建topic成功<br><img src="/images/kfk5.png" alt="图5" title="示例图片"></p>
+<h3 id="第五步-创建一个生产者producer"><a href="#第五步-创建一个生产者producer" class="headerlink" title="第五步 创建一个生产者producer"></a>第五步 创建一个生产者producer</h3><ul>
+<li>创建生产者producer</li>
+<li>在D:\software\kafka_2.11-2.1.1\bin\windows目录下，开启cmd窗口，输入<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kafka-console-producer.bat --broker-list localhost:9092 --topic vinoTest</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>如下图6：创建producer成功，光标会在窗口闪烁，表示等待输入消息，如下图<br><img src="/images/kfk6.png" alt="图6" title="示例图片"></p>
+<h3 id="第六步-创建一个消费者consumer"><a href="#第六步-创建一个消费者consumer" class="headerlink" title="第六步 创建一个消费者consumer"></a>第六步 创建一个消费者consumer</h3><ul>
+<li>消费者consumer </li>
+<li>在D:\software\kafka_2.11-2.1.1\bin\windows目录下，开启cmd窗口，输入</li>
+<li><strong><em>注意：我这里的生产和消费的端口都是9092</em></strong><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic vinoTest --from-beginning</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>如下图7：创建producer成功<br><img src="/images/kfk7.png" alt="图7" title="示例图片"></p>
+<h3 id="第七步，模拟生产和消费消息"><a href="#第七步，模拟生产和消费消息" class="headerlink" title="第七步，模拟生产和消费消息"></a>第七步，模拟生产和消费消息</h3><ul>
+<li>在第五步打开的生产者cmd窗口输入welcome to kafka</li>
+<li>在第六步打开的消费者cmd窗口可实时看到消息输出<br>如图8所示，到此，一个简单的kafka生产和消费场景模拟出来了，后续大家可以尝试集群模式下的消息。<br><img src="/images/kfk8.png" alt="图8" title="示例图片"></li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/17/kafka2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -369,7 +561,7 @@
                 
               
 
-              <time title="创建时间：2019-03-17 18:28:28 / 修改时间：19:56:52" itemprop="dateCreated datePublished" datetime="2019-03-17T18:28:28+08:00">2019-03-17</time>
+              <time title="创建时间：2019-03-17 18:28:28 / 修改时间：20:08:00" itemprop="dateCreated datePublished" datetime="2019-03-17T18:28:28+08:00">2019-03-17</time>
             
 
             
@@ -409,37 +601,17 @@
 
       
         
+          <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p><strong>上文主要描述了kafka的基本概念，很清楚kafka是一个具有高并发处理能力的消息框架。那么，在现在分布式环境下，各类系统总会出现数据丢失的情况，很是棘手，那kafka又是如何解决此问题的呢？</strong></p>
+<h3 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h3><p>在 Kafka 里面，有一个核心的概念叫做“Topic”，这个Topic你就姑且认为是一个数据集合吧。topic里面如果每天写入几十TB的数据，你觉得都放一台机器上靠谱吗？<br>明显不太靠谱。万一机器宕机，后果可想而知。</p>
+          <!--noindex-->
           
-            <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p><strong>上文主要描述了kafka的基本概念，很清楚kafka是一个具有高并发处理能力的消息框架。那么，在现在分布式环境下，各类系统总会出现数据丢失的情况，很是棘手，那kafka又是如何解决此问题的呢？</strong></p>
-<h3 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h3><p>在 Kafka 里面，有一个核心的概念叫做“Topic”，这个Topic你就姑且认为是一个数据集合吧。topic里面如果每天写入几十TB的数据，你觉得都放一台机器上靠谱吗？</p>
-<h2 id="明显不太靠谱。万一机器宕机，后果可想而知。"><a href="#明显不太靠谱。万一机器宕机，后果可想而知。" class="headerlink" title="明显不太靠谱。万一机器宕机，后果可想而知。"></a>明显不太靠谱。万一机器宕机，后果可想而知。</h2><p>所以Kafka 有一个概念叫做 分区，就是把一个Topic数据集合拆分为多个分区，每个分区可以在不同的机器储存部分数据。<br>这样，不就可以把一个超大的数据集合分布式存储在多台机器上了吗？大家看下图，一起来体会一下。<br><img src="/images/kafka3.png" alt="图1" title="示例图片"></p>
-<p>但是这个时候，我们又会遇到一个问题，就是万一某台机器宕机了，这台机器上的那个 Partition 管理的数据不就丢失了吗？</p>
-<ul>
-<li>所以说，我们还得做多副本冗余，每个分区都可以搞一个副本放在别的机器上，这样某台机器宕机，只不过是 Partition 其中一个副本丢失。</li>
-<li>如果某个分区有多副本的话，Kafka 会选举其中一个分区副本作为 Leader，然后其他的分区副本是 Follower。</li>
-<li>只有 Leader分区是对外提供读写操作的，Follower分区就是从 Leader分区同步数据。</li>
-<li>一旦 Leader分区宕机了，就会选举其他的 Follower分区作为新的 Leader对外提供读写服务，这不就实现了高可用架构了。<br><strong><em>如图2，显示这个过程：</em></strong><br><img src="/images/kafka4.png" alt="图2" title="示例图片"></li>
-</ul>
-<p>现在我们来看看，什么情况下 Kafka 中写入数据会丢失呢？其实也很简单，大家都知道写入数据都是往某个分区的 Leader 写入的，然后那个分区的 Follower 会从 Leader 同步数据。<br>但是万一1条数据刚写入Leader，还没来得及同步给 Follower，此时Leader所在机器突然就宕机了呢？<br><strong><em>如图3，显示这个过程：</em></strong><br><img src="/images/kafka5.png" alt="图3" title="示例图片"><br>如上图，这个时候有一条数据是没同步到 Partition0 的 Follower 上去的，然后Partition0的Leader所在机器宕机了。此时就会选举Partition0的Follower作为新的Leader对外提供服务，然后用户是不是就读不到刚才写入的那条数据了？<br>因为Partition0的Follower上是没有同步到最新的一条数据的。这个时候就会造成数据丢失的问题。<br>下面来了解一下kafka的IRS机制</p>
-<h3 id="重点来了：Kafka-的-ISR-机制是什么？"><a href="#重点来了：Kafka-的-ISR-机制是什么？" class="headerlink" title="重点来了：Kafka 的 ISR 机制是什么？"></a>重点来了：Kafka 的 ISR 机制是什么？</h3><p><strong>Kafka 的核心机制，就是 ISR 机制。</strong></p>
-<ul>
-<li>这个机制简单来说，就是会自动给每个分区维护一个ISR列表，这个列表里一定会有Leader，然后还会包含跟Leader保持同步的Follower。</li>
-<li>也就是说，只要Leader的某个Follower一直跟他保持数据同步，那么就会存在于ISR列表里。但是如果Follower因为自身发生一些问题，导致不能及时的从Leader同步数据过去，那么这个Follower就会被认为是“out-of-sync”，被从ISR列表里踢出去。<br><strong><em>说白了，就是 Kafka 自动维护和监控哪些 Follower 及时的跟上了 Leader 的数据同步。</em></strong></li>
-</ul>
-<h3 id="Kafka-写入的数据如何保证不丢失？"><a href="#Kafka-写入的数据如何保证不丢失？" class="headerlink" title="Kafka 写入的数据如何保证不丢失？"></a>Kafka 写入的数据如何保证不丢失？</h3><ul>
-<li>每个分区都至少得有1个Follower在ISR列表里，跟上了Leader的数据同步。</li>
-<li>每次写入数据的时候，都要求至少写入分区Leader成功，同时还有至少一个 ISR 里的Follower也写入成功，才算这个写入是成功了。</li>
-<li>如果不满足上述两个条件，那就一直写入失败，让生产系统不停的尝试重试，直到满足上述两个条件，然后才能认为写入成功。</li>
-<li><strong>按照上述思路去配置相应的参数，才能保证写入 Kafka 的数据不会丢失。</strong></li>
-</ul>
-<p>接着上一个图3分析：</p>
-<ul>
-<li>第一条，必须要求至少一个Follower在ISR列表里。这点必须满足，Leader必须有Follower且能够及时同步数据。</li>
-<li>第二条，每次写入数据的时候，要求Leader写入成功以外，至少一个ISR 里的Follower也写成功。这个要求就是保证说，每次写数据，必须是Leader和Follower都写成功了，才能算是写成功，保证一条数据必须有两个以上的副本。<br><strong>这个时候万一Leader宕机，就可以切换到那个Follower上去，那么Follower上是有刚写入的数据的，此时数据就不会丢失了。</strong><br><img src="/images/kafka5.png" alt="图3" title="示例图片"><br>上图中，<br>假如现在Leader没有Follower了，或者是刚写入Leader，Leader立马就宕机，还没来得及同步给Follower。<br>在这种情况下，写入就会失败，然后你就让生产者不停的重试，直到Kafka恢复正常满足上述条件，才能继续写入。这样就可以让写入Kafka的数据不丢失。</li>
-</ul>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;本文讲了一个分布式环境下，kafka如何保证消息的一致性的，主要是针对Leader切换时可能导致数据丢失的状况。当然，其实Kafka的数据丢失问题，涉及到方方面面。比如，生产端的缓存问题，包括消费端的问题，同时Kafka自己内部的底层算法和机制也可能导致数据丢失。<br>kafka有丰富的开源社区，有一大批开发支持者，不断正优化和扩展它。kafka美妙的设计，值得大家去探索。下篇文章我会给出kafka在windows环境下的搭建过程。</p>
-
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/03/17/kafka2/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
           
+          <!--/noindex-->
         
       
     </div>
@@ -987,7 +1159,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-count">5</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1016,7 +1188,15 @@
                     
                       
                     
-                    <span class="site-state-item-count">5</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">9</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
