@@ -324,7 +324,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/18/websocketDemo/">
+    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/24/concurrentAid/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="vino-jay">
@@ -344,7 +344,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2019/03/18/websocketDemo/" class="post-title-link" itemprop="url">websocket开发示例</a>
+                <a href="/2019/03/24/concurrentAid/" class="post-title-link" itemprop="url">并发编程之辅助工具类</a>
               
             
           </h1>
@@ -369,12 +369,544 @@
                 
               
 
-              <time title="创建时间：2019-03-18 21:12:39 / 修改时间：23:11:52" itemprop="dateCreated datePublished" datetime="2019-03-18T21:12:39+08:00">2019-03-18</time>
+              <time title="创建时间：2019-03-24 20:42:51 / 修改时间：21:54:54" itemprop="dateCreated datePublished" datetime="2019-03-24T20:42:51+08:00">2019-03-24</time>
             
 
             
               
 
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>前言：<br>    在一次迭代开发中，有一个功能是需要去计算各个部分的汇总值，然后再进行合计，最终通知到用户。然后由于数据量大，需要使用多线程去处理，<br>问题是怎么控制所有子部分计算完毕后，再汇总通知到用户。其实这里是涉及到最后一步如何同步处理，我选择使用了CountDownLatch。在java 1.5中，提供了一些非常有用的辅助类来帮助我们进行并发编程，比如CountDownLatch，CyclicBarrier和Semaphore，今天我们就来学习一下这三个同步辅助类的用法。</p>
+<h3 id="Synchronization-Aid：同步辅助器"><a href="#Synchronization-Aid：同步辅助器" class="headerlink" title="Synchronization  Aid：同步辅助器"></a>Synchronization  Aid：同步辅助器</h3><p>下面表格，简单阐述下各自的特点</p>
+<table>
+<thead>
+<tr>
+<th>类名称</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CountDownLatch</td>
+<td>是一个同步的辅助类，允许一个或多个线程，等待其他一组线程完成操作，再继续执行</td>
+</tr>
+<tr>
+<td>CyclicBarrier</td>
+<td>是一个同步的辅助类，允许一组线程相互之间等待，达到一个共同点，再继续执行。</td>
+</tr>
+<tr>
+<td>Semaphore</td>
+<td>是一个同步的辅助类，用来控制同时访问特定资源的线程数量，它通过协调各个线程，以保证合理的使用公共资源。</td>
+</tr>
+</tbody>
+</table>
+<p>三个辅助类，都位于java.util.concurrent包，可以帮助解决不少并发上的棘手问题，下面的demo可以看到各自的使用场景。</p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/03/24/concurrentAid/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/23/designPrinciples/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="vino-jay">
+      <meta itemprop="description" content="凡不能毁灭我的，将使我更强大">
+      <meta itemprop="image" content="/images/headph.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="vino-jay的技术博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/03/23/designPrinciples/" class="post-title-link" itemprop="url">面向对象设计模式原则概述</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-03-23 17:14:34" itemprop="dateCreated datePublished" datetime="2019-03-23T17:14:34+08:00">2019-03-23</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-03-24 21:58:21" itemprop="dateModified" datetime="2019-03-24T21:58:21+08:00">2019-03-24</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>前言：<br>    在上一篇介绍《单例模式》中，详细说明了单例的各种形式，对于设计模式是有一定规范和原则的，本文将概述下设计模式的7大原则</p>
+<h3 id="软件的可维护性和可复用性"><a href="#软件的可维护性和可复用性" class="headerlink" title="软件的可维护性和可复用性"></a>软件的可维护性和可复用性</h3><blockquote>
+<p>知名软件大师Robert C.Martin认为一个可维护性(Maintainability) 较低的软件设计，通常由于如下4个原因造成：</p>
+<ul>
+<li>过于僵硬(Rigidity) </li>
+<li>过于脆弱(Fragility) </li>
+<li>复用率低(Immobility) </li>
+<li>黏度过高(Viscosity) </li>
+</ul>
+</blockquote>
+<blockquote>
+<p>通常而言，一个好的系统设计应该具备如下三个性质</p>
+<ul>
+<li>可扩展性(Extensibility) </li>
+<li>灵活性(Flexibility)</li>
+<li>可插入性(Pluggability) </li>
+</ul>
+</blockquote>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/03/23/designPrinciples/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/19/singleton/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="vino-jay">
+      <meta itemprop="description" content="凡不能毁灭我的，将使我更强大">
+      <meta itemprop="image" content="/images/headph.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="vino-jay的技术博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/03/19/singleton/" class="post-title-link" itemprop="url">大话设计模式之单例模式</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-03-19 14:33:17" itemprop="dateCreated datePublished" datetime="2019-03-19T14:33:17+08:00">2019-03-19</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-03-24 21:57:54" itemprop="dateModified" datetime="2019-03-24T21:57:54+08:00">2019-03-24</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>前言：<br>    在看《spring源码深度解析》这本书时，讲到spring中bean的生命周期，提到了bean默认是单例模式的。可通过修改配置，可以变为多实例模式。<br>然后又涉及到单例模式在并发下是否安全的问题。为了解决内心的疑惑，就整合一些资料和自己的理解，来讲下常用的设计模式-单例模式。</p>
+<h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><blockquote>
+<p>作为对象的创建模式，单例模式确保某一个类只有一个实例，而且自行实例化并向整个系统提供这个实例。这个类称为单例类。</p>
+</blockquote>
+<h3 id="结构特点"><a href="#结构特点" class="headerlink" title="结构特点"></a>结构特点</h3><ul>
+<li>单例类只能有一个实例。</li>
+<li>单例类必须自己创建自己的唯一实例。</li>
+<li>单例类必须给所有其他对象提供这一实例。</li>
+</ul>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/03/19/singleton/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/17/websocketDemo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="vino-jay">
+      <meta itemprop="description" content="凡不能毁灭我的，将使我更强大">
+      <meta itemprop="image" content="/images/headph.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="vino-jay的技术博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/03/17/websocketDemo/" class="post-title-link" itemprop="url">websocket开发示例</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-03-17 21:12:39" itemprop="dateCreated datePublished" datetime="2019-03-17T21:12:39+08:00">2019-03-17</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-03-24 21:57:22" itemprop="dateModified" datetime="2019-03-24T21:57:22+08:00">2019-03-24</time>
               
             
           </span>
@@ -424,7 +956,7 @@
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2019/03/18/websocketDemo/#more" rel="contents">
+              <a class="btn" href="/2019/03/17/websocketDemo/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -484,7 +1016,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/18/kafkaEnv/">
+    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/14/kafka2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="vino-jay">
@@ -504,7 +1036,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2019/03/18/kafkaEnv/" class="post-title-link" itemprop="url">kafka环境搭建</a>
+                <a href="/2019/03/14/kafka2/" class="post-title-link" itemprop="url">kafka 高并发下如何防止数据丢失</a>
               
             
           </h1>
@@ -529,12 +1061,352 @@
                 
               
 
-              <time title="创建时间：2019-03-18 12:24:34 / 修改时间：21:13:13" itemprop="dateCreated datePublished" datetime="2019-03-18T12:24:34+08:00">2019-03-18</time>
+              <time title="创建时间：2019-03-14 18:28:28" itemprop="dateCreated datePublished" datetime="2019-03-14T18:28:28+08:00">2019-03-14</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-03-24 21:57:07" itemprop="dateModified" datetime="2019-03-24T21:57:07+08:00">2019-03-24</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p><strong>上文主要描述了kafka的基本概念，很清楚kafka是一个具有高并发处理能力的消息框架。那么，在现在分布式环境下，各类系统总会出现数据丢失的情况，很是棘手，那kafka又是如何解决此问题的呢？</strong></p>
+<h3 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h3><p>在 Kafka 里面，有一个核心的概念叫做“Topic”，这个Topic你就姑且认为是一个数据集合吧。topic里面如果每天写入几十TB的数据，你觉得都放一台机器上靠谱吗？<br>明显不太靠谱。万一机器宕机，后果可想而知。</p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/03/14/kafka2/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/11/kafka1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="vino-jay">
+      <meta itemprop="description" content="凡不能毁灭我的，将使我更强大">
+      <meta itemprop="image" content="/images/headph.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="vino-jay的技术博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/03/11/kafka1/" class="post-title-link" itemprop="url">kafka 简述</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-03-11 22:18:32" itemprop="dateCreated datePublished" datetime="2019-03-11T22:18:32+08:00">2019-03-11</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-03-24 21:56:49" itemprop="dateModified" datetime="2019-03-24T21:56:49+08:00">2019-03-24</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h3 id="Kafka是什么？"><a href="#Kafka是什么？" class="headerlink" title="Kafka是什么？"></a>Kafka是什么？</h3><p>&nbsp;&nbsp;&nbsp;&nbsp; Kafka 是一个高吞吐量、分布式的发布—订阅消息系统。</p>
+<ul>
+<li>它最初由LinkedIn公司开发，后来成为Apache 项目的一部分。Kafka 核心模块使用Scala 语言开发，支持多语言（如Java、C/C++、Python、Go、Erlang、Node.js 等）客户端，它以可水平扩展和具有高吞吐量等特性而被广泛使用。</li>
+<li>当前的Kafka 已经定位为一个分布式流式处理平台（a distributed streaming platform），目前越来越多的开源分布式处理系统（如Flume、Apache Storm、Spark、Flink等）支持与Kafka 集成。</li>
+</ul>
+<h3 id="kafka背景"><a href="#kafka背景" class="headerlink" title="kafka背景"></a>kafka背景</h3><p>&nbsp;&nbsp;&nbsp;&nbsp; 随着信息技术的快速发展及互联网用户规模的急剧增长，计算机所存储的信息量正呈爆炸式增长，目前数据量已进入大规模和超大规模的海量数据时代，如何高效地存储、分析、处理和挖掘海量数据已成为技术研究领域的热点和难点问题。</p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/03/11/kafka1/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/08/kafkaEnv/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="vino-jay">
+      <meta itemprop="description" content="凡不能毁灭我的，将使我更强大">
+      <meta itemprop="image" content="/images/headph.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="vino-jay的技术博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/03/08/kafkaEnv/" class="post-title-link" itemprop="url">kafka环境搭建</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-03-08 20:24:34" itemprop="dateCreated datePublished" datetime="2019-03-08T20:24:34+08:00">2019-03-08</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-03-24 21:56:31" itemprop="dateModified" datetime="2019-03-24T21:56:31+08:00">2019-03-24</time>
               
             
           </span>
@@ -584,7 +1456,7 @@
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2019/03/18/kafkaEnv/#more" rel="contents">
+              <a class="btn" href="/2019/03/08/kafkaEnv/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -644,7 +1516,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/16/kafka2/">
+    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/03/spring-Boot/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="vino-jay">
@@ -664,7 +1536,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2019/03/16/kafka2/" class="post-title-link" itemprop="url">kafka 高并发下如何防止数据丢失</a>
+                <a href="/2019/03/03/spring-Boot/" class="post-title-link" itemprop="url">Spring Boot简述</a>
               
             
           </h1>
@@ -689,7 +1561,7 @@
                 
               
 
-              <time title="创建时间：2019-03-16 18:28:28" itemprop="dateCreated datePublished" datetime="2019-03-16T18:28:28+08:00">2019-03-16</time>
+              <time title="创建时间：2019-03-03 20:28:02" itemprop="dateCreated datePublished" datetime="2019-03-03T20:28:02+08:00">2019-03-03</time>
             
 
             
@@ -706,335 +1578,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-03-18 14:24:46" itemprop="dateModified" datetime="2019-03-18T14:24:46+08:00">2019-03-18</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p><strong>上文主要描述了kafka的基本概念，很清楚kafka是一个具有高并发处理能力的消息框架。那么，在现在分布式环境下，各类系统总会出现数据丢失的情况，很是棘手，那kafka又是如何解决此问题的呢？</strong></p>
-<h3 id="现象"><a href="#现象" class="headerlink" title="现象"></a>现象</h3><p>在 Kafka 里面，有一个核心的概念叫做“Topic”，这个Topic你就姑且认为是一个数据集合吧。topic里面如果每天写入几十TB的数据，你觉得都放一台机器上靠谱吗？<br>明显不太靠谱。万一机器宕机，后果可想而知。</p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/03/16/kafka2/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/15/kafka1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="vino-jay">
-      <meta itemprop="description" content="凡不能毁灭我的，将使我更强大">
-      <meta itemprop="image" content="/images/headph.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="vino-jay的技术博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/03/15/kafka1/" class="post-title-link" itemprop="url">kafka 简述</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2019-03-15 22:18:32" itemprop="dateCreated datePublished" datetime="2019-03-15T22:18:32+08:00">2019-03-15</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2019-03-18 21:13:52" itemprop="dateModified" datetime="2019-03-18T21:13:52+08:00">2019-03-18</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h3 id="Kafka是什么？"><a href="#Kafka是什么？" class="headerlink" title="Kafka是什么？"></a>Kafka是什么？</h3><p>&nbsp;&nbsp;&nbsp;&nbsp; Kafka 是一个高吞吐量、分布式的发布—订阅消息系统。</p>
-<ul>
-<li>它最初由LinkedIn公司开发，后来成为Apache 项目的一部分。Kafka 核心模块使用Scala 语言开发，支持多语言（如Java、C/C++、Python、Go、Erlang、Node.js 等）客户端，它以可水平扩展和具有高吞吐量等特性而被广泛使用。</li>
-<li>当前的Kafka 已经定位为一个分布式流式处理平台（a distributed streaming platform），目前越来越多的开源分布式处理系统（如Flume、Apache Storm、Spark、Flink等）支持与Kafka 集成。</li>
-</ul>
-<h3 id="kafka背景"><a href="#kafka背景" class="headerlink" title="kafka背景"></a>kafka背景</h3><p>&nbsp;&nbsp;&nbsp;&nbsp; 随着信息技术的快速发展及互联网用户规模的急剧增长，计算机所存储的信息量正呈爆炸式增长，目前数据量已进入大规模和超大规模的海量数据时代，如何高效地存储、分析、处理和挖掘海量数据已成为技术研究领域的热点和难点问题。</p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/03/15/kafka1/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/12/spring-Boot/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="vino-jay">
-      <meta itemprop="description" content="凡不能毁灭我的，将使我更强大">
-      <meta itemprop="image" content="/images/headph.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="vino-jay的技术博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/03/12/spring-Boot/" class="post-title-link" itemprop="url">Spring Boot简述</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2019-03-12 20:28:02" itemprop="dateCreated datePublished" datetime="2019-03-12T20:28:02+08:00">2019-03-12</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2019-03-18 21:13:43" itemprop="dateModified" datetime="2019-03-18T21:13:43+08:00">2019-03-18</time>
+                <time title="修改时间：2019-03-24 21:56:09" itemprop="dateModified" datetime="2019-03-24T21:56:09+08:00">2019-03-24</time>
               
             
           </span>
@@ -1083,7 +1627,7 @@
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2019/03/12/spring-Boot/#more" rel="contents">
+              <a class="btn" href="/2019/03/03/spring-Boot/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1143,7 +1687,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/10/start-blog/">
+    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/01/start-blog/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="vino-jay">
@@ -1163,7 +1707,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2019/03/10/start-blog/" class="post-title-link" itemprop="url">技术博客的第一天</a>
+                <a href="/2019/03/01/start-blog/" class="post-title-link" itemprop="url">技术博客的第一天</a>
               
             
           </h1>
@@ -1188,7 +1732,7 @@
                 
               
 
-              <time title="创建时间：2019-03-10 15:28:02" itemprop="dateCreated datePublished" datetime="2019-03-10T15:28:02+08:00">2019-03-10</time>
+              <time title="创建时间：2019-03-01 19:28:02" itemprop="dateCreated datePublished" datetime="2019-03-01T19:28:02+08:00">2019-03-01</time>
             
 
             
@@ -1205,7 +1749,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-03-18 14:24:15" itemprop="dateModified" datetime="2019-03-18T14:24:15+08:00">2019-03-18</time>
+                <time title="修改时间：2019-03-24 21:55:54" itemprop="dateModified" datetime="2019-03-24T21:55:54+08:00">2019-03-24</time>
               
             
           </span>
@@ -1240,13 +1784,13 @@
 
       
         
-          <p>2019/03/10 加入博客家族第一天！</p>
+          <p>2019/03/01 加入博客家族第一天！</p>
 <h3 id="心情"><a href="#心情" class="headerlink" title="心情"></a>心情</h3><p>作为工作好几年的coder,至今才正式建立自己的博客，除了兴奋还是兴奋…</p>
 <h3 id="愿景"><a href="#愿景" class="headerlink" title="愿景"></a>愿景</h3><p>希望能够通过写博客，一方面分享自己的经验和心得，与博友们共享知识的乐趣；另一方面，加强自己的语言总结和表达能力。</p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2019/03/10/start-blog/#more" rel="contents">
+              <a class="btn" href="/2019/03/01/start-blog/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1335,7 +1879,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-count">9</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1378,7 +1922,15 @@
                     
                       
                     
-                    <span class="site-state-item-count">12</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">16</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

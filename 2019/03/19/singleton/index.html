@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.1" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.0.1',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前言：    在看《spring源码深度解析》这本书时，讲到spring中bean的生命周期，提到了bean默认是单例模式的。可通过修改配置，可以变为多实例模式。然后又涉及到单例模式在并发下是否安全的问题。为了解决内心的疑惑，就整合一些资料和自己的理解，来讲下常用的设计模式-单例模式。 定义 作为对象的创建模式，单例模式确保某一个类只有一个实例，而且自行实例化并向整个系统提供这个实例。这个类称为单">
+<meta name="keywords" content="设计模式,java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="大话设计模式之单例模式">
+<meta property="og:url" content="https://vino-jay.github.io/2019/03/19/singleton/index.html">
+<meta property="og:site_name" content="vino-jay的技术博客">
+<meta property="og:description" content="前言：    在看《spring源码深度解析》这本书时，讲到spring中bean的生命周期，提到了bean默认是单例模式的。可通过修改配置，可以变为多实例模式。然后又涉及到单例模式在并发下是否安全的问题。为了解决内心的疑惑，就整合一些资料和自己的理解，来讲下常用的设计模式-单例模式。 定义 作为对象的创建模式，单例模式确保某一个类只有一个实例，而且自行实例化并向整个系统提供这个实例。这个类称为单">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-03-24T13:57:54.750Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="大话设计模式之单例模式">
+<meta name="twitter:description" content="前言：    在看《spring源码深度解析》这本书时，讲到spring中bean的生命周期，提到了bean默认是单例模式的。可通过修改配置，可以变为多实例模式。然后又涉及到单例模式在并发下是否安全的问题。为了解决内心的疑惑，就整合一些资料和自己的理解，来讲下常用的设计模式-单例模式。 定义 作为对象的创建模式，单例模式确保某一个类只有一个实例，而且自行实例化并向整个系统提供这个实例。这个类称为单">
+
+
+
+
+
+
+  <link rel="canonical" href="https://vino-jay.github.io/2019/03/19/singleton/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>大话设计模式之单例模式 | vino-jay的技术博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">vino-jay的技术博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>随笔</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/19/singleton/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="vino-jay">
+      <meta itemprop="description" content="凡不能毁灭我的，将使我更强大">
+      <meta itemprop="image" content="/images/headph.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="vino-jay的技术博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">大话设计模式之单例模式
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-03-19 14:33:17" itemprop="dateCreated datePublished" datetime="2019-03-19T14:33:17+08:00">2019-03-19</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-03-24 21:57:54" itemprop="dateModified" datetime="2019-03-24T21:57:54+08:00">2019-03-24</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>前言：<br>    在看《spring源码深度解析》这本书时，讲到spring中bean的生命周期，提到了bean默认是单例模式的。可通过修改配置，可以变为多实例模式。<br>然后又涉及到单例模式在并发下是否安全的问题。为了解决内心的疑惑，就整合一些资料和自己的理解，来讲下常用的设计模式-单例模式。</p>
+<h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><blockquote>
+<p>作为对象的创建模式，单例模式确保某一个类只有一个实例，而且自行实例化并向整个系统提供这个实例。这个类称为单例类。</p>
+</blockquote>
+<h3 id="结构特点"><a href="#结构特点" class="headerlink" title="结构特点"></a>结构特点</h3><ul>
+<li>单例类只能有一个实例。</li>
+<li>单例类必须自己创建自己的唯一实例。</li>
+<li>单例类必须给所有其他对象提供这一实例。</li>
+</ul>
+<a id="more"></a>
+<p><strong><em>根据以上特点，大体可分为4类，下面分别介绍他们的基本形式、变种及特点。</em></strong></p>
+<h3 id="单例的多种形式"><a href="#单例的多种形式" class="headerlink" title="单例的多种形式"></a>单例的多种形式</h3><h4 id="饱汉模式"><a href="#饱汉模式" class="headerlink" title="饱汉模式"></a>饱汉模式</h4><blockquote>
+<p>饱汉，即已经吃饱，不着急再吃，饿的时候再吃。所以他就先不初始化单例，等第一次使用的时候再初始化，即“懒加载”。<br><figure class="highlight plain"><figcaption><span>class SingletonFullHan &#123;</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">    private static SingletonFullHan singleton = null;</span><br><span class="line">    private SingletonFullHan()&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static SingletonFullHan getInstance() &#123;</span><br><span class="line">        if (singleton == null) &#123;</span><br><span class="line">            singleton = new SingletonFullHan();</span><br><span class="line">        &#125;</span><br><span class="line">        return singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<ul>
+<li>饱汉模式的核心就是懒加载。好处是更启动速度快、节省资源，一直到实例被第一次访问，才需要初始化单例.</li>
+<li>小坏处是写起来麻烦，大坏处是线程不安全，if语句存在竞态条件。</li>
+<li>写起来麻烦不是大问题，可读性好啊。因此，单线程环境下，基础饱汉是猴哥最喜欢的写法。</li>
+<li>但多线程环境下，基础饱汉就彻底不可用了。下面的几种变种都在试图解决基础饱汉线程不安全的问题。</li>
+</ul>
+<h5 id="饱汉-–-变种1"><a href="#饱汉-–-变种1" class="headerlink" title="饱汉 – 变种1"></a>饱汉 – 变种1</h5><p><strong><em>最粗暴的犯法是用synchronized关键字修饰getInstance()方法，这样能达到绝对的线程安全。</em></strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public class SingletonFullHan1 &#123;</span><br><span class="line">    private static SingletonFullHan1 singleton = null;</span><br><span class="line">    private SingletonFullHan1()&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public synchronized static SingletonFullHan1 getInstance() &#123;</span><br><span class="line">        if (singleton == null) &#123;</span><br><span class="line">            singleton = new SingletonFullHan1();</span><br><span class="line">        &#125;</span><br><span class="line">        return singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>变种1的好处是写起来简单，且绝对线程安全；</li>
+<li>坏处是并发性能极差，事实上完全退化到了串行。</li>
+<li>单例只需要初始化一次，但就算初始化以后，synchronized的锁也无法避开，从而getInstance()完全变成了串行操作。性能不敏感的场景建议使用。</li>
+</ul>
+<h5 id="饱汉-–-变种2"><a href="#饱汉-–-变种2" class="headerlink" title="饱汉 – 变种2"></a>饱汉 – 变种2</h5><blockquote>
+<p> “臭名昭著” 的DCL</p>
+</blockquote>
+<p><strong><em>针对变种1中单例初始化后锁仍然无法避开的问题，变种2在变种1的外层又套了一层check，加上synchronized内层的check，即所谓“双重检查锁”（Double Check Lock，简称DCL）。</em></strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">public class SingletonFullHan2 &#123;</span><br><span class="line">    private static SingletonFullHan2 singleton = null;</span><br><span class="line">    private SingletonFullHan2()&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public synchronized static SingletonFullHan2 getInstance() &#123;</span><br><span class="line">        if (singleton == null) &#123;</span><br><span class="line">            synchronized (SingletonFullHan2.class)&#123;</span><br><span class="line">                if (singleton == null) &#123;</span><br><span class="line">                    singleton = new SingletonFullHan2();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>变种2的核心是DCL，看起来变种2似乎已经达到了理想的效果：懒加载+线程安全。</li>
+<li>可惜的是，正如注释中所说，DCL仍然是线程不安全的，由于指令重排序，你可能会得到“半个对象”。<blockquote>
+<p> 问题的根源 ：指令重排序,下面模拟对象初始化场景</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">memory = allocate();   //1：分配对象的内存空间</span><br><span class="line">ctorInstance(memory);  //2：初始化对象</span><br><span class="line">instance = memory;     //3：设置 instance 指向刚分配的内存地址</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+</ul>
+<p>上面三行伪代码中的 2 和 3 之间，可能会被重排序（在一些 JIT 编译器上，这种重排序是真实发生的）。2 和 3 之间重排序之后的执行时序如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">memory = allocate();   //1：分配对象的内存空间</span><br><span class="line">instance = memory;     //3：设置 instance 指向刚分配的内存地址</span><br><span class="line">                       // 注意，此时对象还没有被初始化！</span><br><span class="line">ctorInstance(memory);  //2：初始化对象</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>假设一个线程 A 在构造对象后，立即访问这个对象</li>
+<li>另一个并发执行的线程 B 也访问这个对象，就有可能在判断 instance 不为 null。</li>
+<li>线程 B 接下来将访问 instance 所引用的对象，但此时这个对象可能还没有被 A 线程初始化。此时，线程 B 将会访问到一个还未初始化的对象。<br><strong><strong>于是就有了接下来的变种-3</strong></strong><h5 id="饱汉-–-变种3"><a href="#饱汉-–-变种3" class="headerlink" title="饱汉 – 变种3"></a>饱汉 – 变种3</h5><blockquote>
+<p> 变种3专门针对变种2，可谓DCL 2.0。<br>针对变种2的“半个对象”问题，变种3在instance上增加了volatile关键字。</p>
+</blockquote>
+</li>
+</ul>
+<p><strong><em>关于volatile关键字，大家有兴趣的可以自行研究，有助于加深理解原理</em></strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">public class SingletonFullHan3 &#123;</span><br><span class="line">    private static volatile SingletonFullHan3 singleton = null;</span><br><span class="line">    private SingletonFullHan3()&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public synchronized static SingletonFullHan3 getInstance() &#123;</span><br><span class="line">        if (singleton == null) &#123;</span><br><span class="line">            synchronized (SingletonFullHan3.class)&#123;</span><br><span class="line">                if (singleton == null) &#123;</span><br><span class="line">                    singleton = new SingletonFullHan3();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>多线程环境下，变种3更适用于性能敏感的场景。</li>
+</ul>
+<h4 id="饿汉模式"><a href="#饿汉模式" class="headerlink" title="饿汉模式"></a>饿汉模式</h4><blockquote>
+<p> 与饱汉相对，饿汉很饿，只想着尽早吃到。所以他就在最早的时机，即类加载时初始化单例，以后访问时直接返回即可。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public class SingletonHungry &#123;</span><br><span class="line">    private static SingletonHungry singleton = new SingletonHungry();</span><br><span class="line">    private SingletonHungry()&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static SingletonHungry getInstance() &#123;</span><br><span class="line">        return singleton;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>饿汉的好处是天生的线程安全（得益于类加载机制），写起来超级简单，使用时没有延迟；</li>
+<li>坏处是有可能造成资源浪费（如果类加载后就一直不使用单例的话）。</li>
+<li>值得注意的时，单线程环境下，饿汉与饱汉在性能上没什么差别；</li>
+<li>在多线程环境下，由于饱汉需要加锁，饿汉的性能反而更优。</li>
+</ul>
+<h4 id="Holder模式"><a href="#Holder模式" class="headerlink" title="Holder模式"></a>Holder模式</h4><blockquote>
+<p> 我们既希望利用饿汉模式中静态变量的方便和线程安全；<br>   又希望通过懒加载规避资源浪费。Holder模式满足了这两点要求：核心仍然是静态变量，足够方便和线程安全；<br>   通过静态的Holder类持有真正实例，间接实现了懒加载。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">public class SingletonHolder &#123;</span><br><span class="line">    private static class SingletonHolderInit &#123;</span><br><span class="line">        private static final SingletonHolder singleton = new SingletonHolder();</span><br><span class="line">        private SingletonHolderInit() &#123;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    private SingletonHolder()&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    public synchronized static SingletonHolder getInstance()&#123;</span><br><span class="line">        return SingletonHolderInit.singleton;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>相对于饿汉模式，Holder模式仅增加了一个静态内部类的成本，与饱汉的变种3效果相当（略优），都是比较受欢迎的实现方式。同样建议考虑。</li>
+</ul>
+<h4 id="枚举模式"><a href="#枚举模式" class="headerlink" title="枚举模式"></a>枚举模式</h4><blockquote>
+<p> 用枚举实现单例模式，相当好用，但可读性是不存在的。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public enum SingletonEnum &#123;</span><br><span class="line">    SINGLETON;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>代码量比饿汉模式更少。但用户只能直接访问实例SingletonEnum.SINGLETON——事实上，这样的访问方式作为单例使用也是恰当的，只是牺牲了静态工厂方法的优点，如无法实现懒加载。</li>
+</ul>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
+<li>上面的分析都忽略了反射和序列化的问题。通过反射或序列化，我们仍然能够访问到私有构造器，创建新的实例破坏单例模式。</li>
+<li>下面继续忽略反射和序列化的问题，做个总结回味一下：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>实现方式</th>
+<th>关键点</th>
+<th>资源浪费</th>
+<th>线程安全</th>
+<th>多线程环境的性能足够优化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>基础饱汉</td>
+<td>懒加载</td>
+<td>否</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>饱汉变种1</td>
+<td>懒加载、同步</td>
+<td>否</td>
+<td>是</td>
+<td>否</td>
+</tr>
+<tr>
+<td>饱汉变种2</td>
+<td>懒加载、DCL</td>
+<td>否</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>饱汉变种3</td>
+<td>懒加载、DCL、volatile</td>
+<td>否</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr>
+<td>饿汉</td>
+<td>静态变量初始化</td>
+<td>是</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr>
+<td>Holder</td>
+<td>静态变量初始化、holder</td>
+<td>否</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr>
+<td>枚举</td>
+<td>枚举本质、静态变量初始化</td>
+<td>否</td>
+<td>是</td>
+<td>是</td>
+</tr>
+</tbody>
+</table>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/设计模式/" rel="tag"># 设计模式</a>
+          
+            <a href="/tags/java/" rel="tag"># java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/17/websocketDemo/" rel="next" title="websocket开发示例">
+                <i class="fa fa-chevron-left"></i> websocket开发示例
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/03/23/designPrinciples/" rel="prev" title="面向对象设计模式原则概述">
+                面向对象设计模式原则概述 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/headph.jpg" alt="vino-jay">
+            
+              <p class="site-author-name" itemprop="name">vino-jay</p>
+              <div class="site-description motion-element" itemprop="description">凡不能毁灭我的，将使我更强大</div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">9</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义"><span class="nav-number">1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#结构特点"><span class="nav-number">2.</span> <span class="nav-text">结构特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#单例的多种形式"><span class="nav-number">3.</span> <span class="nav-text">单例的多种形式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#饱汉模式"><span class="nav-number">3.1.</span> <span class="nav-text">饱汉模式</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#饱汉-–-变种1"><span class="nav-number">3.1.1.</span> <span class="nav-text">饱汉 – 变种1</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#饱汉-–-变种2"><span class="nav-number">3.1.2.</span> <span class="nav-text">饱汉 – 变种2</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#饱汉-–-变种3"><span class="nav-number">3.1.3.</span> <span class="nav-text">饱汉 – 变种3</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#饿汉模式"><span class="nav-number">3.2.</span> <span class="nav-text">饿汉模式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Holder模式"><span class="nav-number">3.3.</span> <span class="nav-text">Holder模式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#枚举模式"><span class="nav-number">3.4.</span> <span class="nav-text">枚举模式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">vino-jay</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.0.1</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.1"></script>
+
+  <script src="/js/src/motion.js?v=7.0.1"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=7.0.1"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=7.0.1"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.1"></script>
+<script src="/js/src/post-details.js?v=7.0.1"></script>
+
+
+
+  
+
+
+  <script src="/js/src/next-boot.js?v=7.0.1"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

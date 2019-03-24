@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.1" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.0.1',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前言：    在一次迭代开发中，有一个功能是需要去计算各个部分的汇总值，然后再进行合计，最终通知到用户。然后由于数据量大，需要使用多线程去处理，问题是怎么控制所有子部分计算完毕后，再汇总通知到用户。其实这里是涉及到最后一步如何同步处理，我选择使用了CountDownLatch。在java 1.5中，提供了一些非常有用的辅助类来帮助我们进行并发编程，比如CountDownLatch，CyclicBa">
+<meta name="keywords" content="多线程,并发编程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="并发编程之辅助工具类">
+<meta property="og:url" content="https://vino-jay.github.io/2019/03/24/concurrentAid/index.html">
+<meta property="og:site_name" content="vino-jay的技术博客">
+<meta property="og:description" content="前言：    在一次迭代开发中，有一个功能是需要去计算各个部分的汇总值，然后再进行合计，最终通知到用户。然后由于数据量大，需要使用多线程去处理，问题是怎么控制所有子部分计算完毕后，再汇总通知到用户。其实这里是涉及到最后一步如何同步处理，我选择使用了CountDownLatch。在java 1.5中，提供了一些非常有用的辅助类来帮助我们进行并发编程，比如CountDownLatch，CyclicBa">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-03-24T13:54:54.363Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="并发编程之辅助工具类">
+<meta name="twitter:description" content="前言：    在一次迭代开发中，有一个功能是需要去计算各个部分的汇总值，然后再进行合计，最终通知到用户。然后由于数据量大，需要使用多线程去处理，问题是怎么控制所有子部分计算完毕后，再汇总通知到用户。其实这里是涉及到最后一步如何同步处理，我选择使用了CountDownLatch。在java 1.5中，提供了一些非常有用的辅助类来帮助我们进行并发编程，比如CountDownLatch，CyclicBa">
+
+
+
+
+
+
+  <link rel="canonical" href="https://vino-jay.github.io/2019/03/24/concurrentAid/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>并发编程之辅助工具类 | vino-jay的技术博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">vino-jay的技术博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>随笔</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/24/concurrentAid/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="vino-jay">
+      <meta itemprop="description" content="凡不能毁灭我的，将使我更强大">
+      <meta itemprop="image" content="/images/headph.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="vino-jay的技术博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">并发编程之辅助工具类
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-03-24 20:42:51 / 修改时间：21:54:54" itemprop="dateCreated datePublished" datetime="2019-03-24T20:42:51+08:00">2019-03-24</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>前言：<br>    在一次迭代开发中，有一个功能是需要去计算各个部分的汇总值，然后再进行合计，最终通知到用户。然后由于数据量大，需要使用多线程去处理，<br>问题是怎么控制所有子部分计算完毕后，再汇总通知到用户。其实这里是涉及到最后一步如何同步处理，我选择使用了CountDownLatch。在java 1.5中，提供了一些非常有用的辅助类来帮助我们进行并发编程，比如CountDownLatch，CyclicBarrier和Semaphore，今天我们就来学习一下这三个同步辅助类的用法。</p>
+<h3 id="Synchronization-Aid：同步辅助器"><a href="#Synchronization-Aid：同步辅助器" class="headerlink" title="Synchronization  Aid：同步辅助器"></a>Synchronization  Aid：同步辅助器</h3><p>下面表格，简单阐述下各自的特点</p>
+<table>
+<thead>
+<tr>
+<th>类名称</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CountDownLatch</td>
+<td>是一个同步的辅助类，允许一个或多个线程，等待其他一组线程完成操作，再继续执行</td>
+</tr>
+<tr>
+<td>CyclicBarrier</td>
+<td>是一个同步的辅助类，允许一组线程相互之间等待，达到一个共同点，再继续执行。</td>
+</tr>
+<tr>
+<td>Semaphore</td>
+<td>是一个同步的辅助类，用来控制同时访问特定资源的线程数量，它通过协调各个线程，以保证合理的使用公共资源。</td>
+</tr>
+</tbody>
+</table>
+<p>三个辅助类，都位于java.util.concurrent包，可以帮助解决不少并发上的棘手问题，下面的demo可以看到各自的使用场景。</p>
+<a id="more"></a>
+<h3 id="CountDownLatch-用法"><a href="#CountDownLatch-用法" class="headerlink" title="CountDownLatch 用法"></a>CountDownLatch 用法</h3><ul>
+<li>CountDownLatch 使一个线程A或是一组线程A等待其它线程执行完毕后，一个线程A或是组线程A才继续执行</li>
+<li>CountDownLatch是减计数方式，计数==0时释放所有等待的线程。利用它可以实现类似计数器的功能<h4 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h4>下面这3个方法是CountDownLatch类中最重要的方法：</li>
+<li>唯一的构造方法 public CountDownLatch(int count) {  };  //参数count为计数值</li>
+<li>public void await() throws InterruptedException { };   //调用await()方法的线程会被挂起，它会等待直到count值为0才继续执行</li>
+<li>public boolean await(long timeout, TimeUnit unit) throws InterruptedException { };  //和await()类似，只不过等待一定的时间后count值还没变为0的话就会继续执行</li>
+<li>public void countDown() { };  //将count值减1</li>
+</ul>
+<h4 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h4><p><strong><em>假设一条流水线上有三个工作者：worker0，worker1，worker2。有一个任务的完成需要他们三者协作完成，worker2可以开始这个任务的前提是worker0和worker1完成了他们的工作，而worker0和worker1是可以并行他们各自的工作的。</em></strong></p>
+<h5 id="code"><a href="#code" class="headerlink" title="code:"></a>code:</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">public class Worker1 extends Thread &#123;</span><br><span class="line">    //工作者名</span><br><span class="line">    private String name;</span><br><span class="line">    //第一阶段工作时间</span><br><span class="line">    private long time;</span><br><span class="line"></span><br><span class="line">    private CountDownLatch countDownLatch;</span><br><span class="line"></span><br><span class="line">    public Worker1(String name, long time, CountDownLatch countDownLatch) &#123;</span><br><span class="line">        this.name = name;</span><br><span class="line">        this.time = time;</span><br><span class="line">        this.countDownLatch = countDownLatch;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void run() &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            System.out.println(name+&quot;开始工作&quot;);</span><br><span class="line">            Thread.sleep(time);</span><br><span class="line">            System.out.println(name+&quot;第一阶段工作完成&quot;);</span><br><span class="line"></span><br><span class="line">            countDownLatch.countDown();</span><br><span class="line"></span><br><span class="line">            Thread.sleep(2000); //这里就姑且假设第二阶段工作都是要2秒完成</span><br><span class="line">            System.out.println(name+&quot;第二阶段工作完成&quot;);</span><br><span class="line">            System.out.println(name+&quot;工作完成，耗费时间=&quot;+(time+2000));</span><br><span class="line"></span><br><span class="line">        &#125; catch (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public class Test1 &#123;</span><br><span class="line">    public static void main(String[] args) throws InterruptedException &#123;</span><br><span class="line"></span><br><span class="line">        CountDownLatch countDownLatch = new CountDownLatch(2);</span><br><span class="line">        Worker1 worker0 = new Worker1(&quot;worker0&quot;, (long) (Math.random()*2000+3000), countDownLatch);</span><br><span class="line">        Worker1 worker1 = new Worker1(&quot;worker1&quot;, (long) (Math.random()*2000+3000), countDownLatch);</span><br><span class="line">        Worker1 worker2 = new Worker1(&quot;worker2&quot;, (long) (Math.random()*2000+3000), countDownLatch);</span><br><span class="line"></span><br><span class="line">        worker0.start();</span><br><span class="line">        worker1.start();</span><br><span class="line"></span><br><span class="line">        //这样主线程的操作就会在这个方法上阻塞，直到其他线程完成各自的任务。</span><br><span class="line">        countDownLatch.await();</span><br><span class="line"></span><br><span class="line">        System.out.println(&quot;worker2准备工作就绪&quot;);</span><br><span class="line">        worker2.start();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到控制台的输出信息,work0跟work1是并发开始进行工作的，只有等它们两完成第一阶段工作时，<br>countDownLatch会相继减1，work2就可以加入工作中，最后三人一起完成了工作。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">worker0开始工作</span><br><span class="line">worker1开始工作</span><br><span class="line">worker1第一阶段工作完成</span><br><span class="line">worker0第一阶段工作完成</span><br><span class="line">worker2准备工作就绪</span><br><span class="line">worker2开始工作</span><br><span class="line">worker1第二阶段工作完成</span><br><span class="line">worker1工作完成，耗费时间=5208</span><br><span class="line">worker0第二阶段工作完成</span><br><span class="line">worker0工作完成，耗费时间=5794</span><br><span class="line">worker2第一阶段工作完成</span><br><span class="line">worker2第二阶段工作完成</span><br><span class="line">worker2工作完成，耗费时间=6755</span><br></pre></td></tr></table></figure></p>
+<h3 id="CyclicBarrier-用法"><a href="#CyclicBarrier-用法" class="headerlink" title="CyclicBarrier 用法"></a>CyclicBarrier 用法</h3><ul>
+<li>字面意思回环栅栏，通过它可以实现让一组线程等待至某个状态之后再全部同时执行。</li>
+<li>一组线程使用await()指定barrier，所有线程都到达各自的barrier后，再同时执行各自barrier下面的代码。</li>
+<li>CyclicBarrier是加计数方式，计数达到构造方法中参数指定的值时释放所有等待的线程。</li>
+<li>另外CyclicBarrier是可以重用的，本文将不会说明，有兴趣的可以自行实践一番。<h4 id="方法-1"><a href="#方法-1" class="headerlink" title="方法"></a>方法</h4>下面这4个方法是CyclicBarrier类中最重要的方法：</li>
+<li>构造方法1 public CyclicBarrier(int parties, Runnable barrierAction) {} // 参数parties指让多少个线程或者任务等待至barrier状态；参数barrierAction为当这些线程都达到barrier状态时会执行的内容。</li>
+<li>构造方法2  public CyclicBarrier(int parties) {}</li>
+<li>public int await() throws InterruptedException, BrokenBarrierException { };</li>
+<li>public int await(long timeout, TimeUnit unit)throws InterruptedException,BrokenBarrierException,TimeoutException { };<blockquote>
+<p>CyclicBarrier中最重要的方法就是await方法,第一个版本比较常用，用来挂起当前线程，直至所有线程都到达barrier状态再同时执行后续任务；<br>第二个版本是让这些线程等待至一定的时间，如果还有线程没有到达barrier状态就直接让到达barrier的线程执行后续任务。</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="案例-1"><a href="#案例-1" class="headerlink" title="案例"></a>案例</h4><p><strong><em>假设现在某机关单位，需要先计算出各省的GDP，最后再进行全国汇总。下面使用CyclicBarrier实现</em></strong></p>
+<h5 id="code-1"><a href="#code-1" class="headerlink" title="code:"></a>code:</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line">/**各省的计算*/</span><br><span class="line">public interface BillService &#123;</span><br><span class="line">    void bill(String code,ConcurrentHashMap&lt;String,Integer&gt; totalMap);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public class BillServiceImpl implements BillService &#123;</span><br><span class="line">    public void bill(String code,ConcurrentHashMap&lt;String,Integer&gt; totalMap) &#123;</span><br><span class="line">        Integer sum = new Random().nextInt(10);</span><br><span class="line">        totalMap.put(code,sum);</span><br><span class="line">        System.out.println(&quot;计算&quot;+code+&quot;地区的值为：&quot; + sum);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**全国合计的计算*/</span><br><span class="line">public interface TotalService &#123;</span><br><span class="line">    void count(ConcurrentHashMap&lt;String,Integer&gt; totalMap);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public class TotalServiceImpl implements TotalService &#123;</span><br><span class="line">    private int count = 0;</span><br><span class="line">    public void count(ConcurrentHashMap&lt;String,Integer&gt; totalMap) &#123;</span><br><span class="line">        for(Map.Entry&lt;String,Integer&gt; entry:totalMap.entrySet())&#123;</span><br><span class="line">            count += entry.getValue();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(&quot;全国总值：&quot; + count);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**各省的计算线程*/</span><br><span class="line">public class BillTask extends Thread&#123;</span><br><span class="line">    // 计费服务</span><br><span class="line">    private BillService billService;</span><br><span class="line">    private CyclicBarrier barrier;</span><br><span class="line">    // 代码，按省代码分类，各省数据库独立。</span><br><span class="line">    private String code;</span><br><span class="line">    private ConcurrentHashMap&lt;String,Integer&gt; totalMap;</span><br><span class="line">    private HashMap&lt;String,Integer&gt; totalHMap;</span><br><span class="line">    public BillTask(BillService billService, CyclicBarrier barrier, String code,ConcurrentHashMap&lt;String,Integer&gt; totalMap) &#123;</span><br><span class="line">        this.billService = billService;</span><br><span class="line">        this.barrier = barrier;</span><br><span class="line">        this.code = code;</span><br><span class="line">        this.totalMap = totalMap;</span><br><span class="line">    &#125;</span><br><span class="line">    public BillTask(BillService billService, CyclicBarrier barrier, String code,HashMap&lt;String,Integer&gt; totalHMap) &#123;</span><br><span class="line">        this.billService = billService;</span><br><span class="line">        this.barrier = barrier;</span><br><span class="line">        this.code = code;</span><br><span class="line">        this.totalHMap = totalHMap;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void run() &#123;</span><br><span class="line">        System.out.println(&quot;开始计算--&quot; + code + &quot;省--数据！&quot;);</span><br><span class="line">        billService.bill(code,totalMap);</span><br><span class="line">        // 把bill方法结果存入内存，如ConcurrentHashMap,vector等,代码略</span><br><span class="line">        System.out.println(code + &quot;省已经计算完成,并通知汇总Service！&quot;);</span><br><span class="line">        try &#123;</span><br><span class="line">            // 通知barrier已经完成</span><br><span class="line">            barrier.await();</span><br><span class="line">        &#125; catch (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; catch (BrokenBarrierException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**全国的计算线程*/</span><br><span class="line">public class TotalTask implements Runnable&#123;</span><br><span class="line">    private TotalService totalService;</span><br><span class="line">    private ConcurrentHashMap&lt;String,Integer&gt; totalMap;</span><br><span class="line">    public TotalTask(TotalService totalService,ConcurrentHashMap&lt;String,Integer&gt; totalMap) &#123;</span><br><span class="line">        this.totalService = totalService;</span><br><span class="line">        this.totalMap = totalMap;</span><br><span class="line">    &#125;</span><br><span class="line">    public void run() &#123;</span><br><span class="line">        // 读取内存中各省的数据汇总，过程略。</span><br><span class="line">        totalService.count(totalMap);</span><br><span class="line">        System.out.println(&quot;=======================================&quot;);</span><br><span class="line">        System.out.println(&quot;全国汇总结束！&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong><em> 注意这里的map类型一定是要线程安全的，ConcurrentHashMap在并发下是安全的，若用HashMap程序运行中会报错，可自行尝试。</em></strong><br>最后看下执行程序：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">/**计算总和*/</span><br><span class="line">public class Total &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        TotalService totalService = new TotalServiceImpl();</span><br><span class="line">        ConcurrentHashMap&lt;String,Integer&gt; totalMap = new ConcurrentHashMap&lt;String,Integer&gt;();</span><br><span class="line">        // CyclicBarrier：一组线程使用await()指定barrier，所有线程都到达各自的barrier后，再同时执行各自barrier下面的代码</span><br><span class="line">        // CyclicBarrier: 只有一个await()方法，调用await()方法计数加1，若加1后的值不等于构造方法的值，则线程阻塞。</span><br><span class="line">        CyclicBarrier barrier = new CyclicBarrier(5,</span><br><span class="line">                new TotalTask(totalService,totalMap));</span><br><span class="line"></span><br><span class="line">        // 实际系统是查出所有省编码code的列表，然后循环，每个code生成一个线程。</span><br><span class="line">        new BillTask(new BillServiceImpl(), barrier, &quot;北京&quot;,totalMap).start();</span><br><span class="line">        new BillTask(new BillServiceImpl(), barrier, &quot;上海&quot;,totalMap).start();</span><br><span class="line">        new BillTask(new BillServiceImpl(), barrier, &quot;广西&quot;,totalMap).start();</span><br><span class="line">        new BillTask(new BillServiceImpl(), barrier, &quot;四川&quot;,totalMap).start();</span><br><span class="line">        new BillTask(new BillServiceImpl(), barrier, &quot;黑龙江&quot;,totalMap).start();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>可以看到控制台的输出信息,北京、上海、广西、四川、黑龙江是并发开始进行计算的，每一个省计算完成，都会加1，<br>直到5省份都计算结束，使用await()指定barrier达到5后，全国计算的service开始工作，最终得到全国的计算结果。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">开始计算--北京省--数据！</span><br><span class="line">开始计算--上海省--数据！</span><br><span class="line">开始计算--黑龙江省--数据！</span><br><span class="line">计算北京地区的值为：6</span><br><span class="line">北京省已经计算完成,并通知汇总Service！</span><br><span class="line">计算黑龙江地区的值为：3</span><br><span class="line">黑龙江省已经计算完成,并通知汇总Service！</span><br><span class="line">计算上海地区的值为：9</span><br><span class="line">上海省已经计算完成,并通知汇总Service！</span><br><span class="line">开始计算--广西省--数据！</span><br><span class="line">计算广西地区的值为：2</span><br><span class="line">广西省已经计算完成,并通知汇总Service！</span><br><span class="line">开始计算--四川省--数据！</span><br><span class="line">计算四川地区的值为：7</span><br><span class="line">四川省已经计算完成,并通知汇总Service！</span><br><span class="line">全国总值：27</span><br><span class="line">=======================================</span><br><span class="line">全国汇总结束！</span><br></pre></td></tr></table></figure></p>
+<h3 id="Semaphore-用法"><a href="#Semaphore-用法" class="headerlink" title="Semaphore 用法"></a>Semaphore 用法</h3><ul>
+<li>用来控制同时访问特定资源的线程数量，它通过协调各个线程，以保证合理的使用公共资源。</li>
+<li>Semaphore，每次semaphore.acquire()，获取一个资源，每次semaphore.acquire(n)，获取n个资源，当达到semaphore 指定资源数量时就不能再访问线程处于阻塞，必须等其它线程释放资源，semaphore.relase()每次释放一个资源，semaphore.relase(n)每次资源n个资源。<h4 id="方法-2"><a href="#方法-2" class="headerlink" title="方法"></a>方法</h4>下面这4个方法是Semaphore类中最重要的方法：</li>
+<li>构造方法1 public Semaphore(int permits) {sync = new NonfairSync(permits);} //参数permits表示许可数目，即同时可以允许多少线程进行访问</li>
+<li>构造方法2 public Semaphore(int permits, boolean fair) {   sync = (fair)? new FairSync(permits) : new NonfairSync(permits);} //这个多了一个参数fair表示是否是公平的，即等待时间越久的越先获取许可</li>
+<li>public void acquire() throws InterruptedException {  }     //获取一个许可</li>
+<li>public void acquire(int permits) throws InterruptedException { }    //获取permits个许可</li>
+<li>public void release() { }          //释放一个许可</li>
+<li>public void release(int permits) { }    //释放permits个许可<blockquote>
+<p>acquire()用来获取一个许可，若无许可能够获得，则会一直等待，直到获得许可。<br>release()用来释放许可。注意，在释放许可之前，必须先获获得许可。</p>
+</blockquote>
+</li>
+</ul>
+<p><strong><em>这4个方法都会被阻塞，如果想立即得到执行结果，可以使用下面几个方法：</em></strong></p>
+<ul>
+<li>public boolean tryAcquire() { };    //尝试获取一个许可，若获取成功，则立即返回true，若获取失败，则立即返回false</li>
+<li>public boolean tryAcquire(long timeout, TimeUnit unit) throws InterruptedException { };  //尝试获取一个许可，若在指定的时间内获取成功，则立即返回true，否则则立即返回false</li>
+<li>public boolean tryAcquire(int permits) { }; //尝试获取permits个许可，若获取成功，则立即返回true，若获取失败，则立即返回false</li>
+<li>public boolean tryAcquire(int permits, long timeout, TimeUnit unit) throws InterruptedException { }; //尝试获取permits个许可，若在指定的时间内获取成功，则立即返回true，否则则立即返回false<br>另外还可以通过availablePermits()方法得到可用的许可数目。<h4 id="案例-2"><a href="#案例-2" class="headerlink" title="案例"></a>案例</h4><strong><em>下面通过几个员工进入停车场为例。</em></strong></li>
+</ul>
+<h5 id="code-2"><a href="#code-2" class="headerlink" title="code:"></a>code:</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">public class SemaphoreCase &#123;</span><br><span class="line">    // Semaphore主要用于控制当前活动线程数目，就如同停车场系统一般，而Semaphore则相当于看守的人，</span><br><span class="line">    // 用于控制总共允许停车的停车位的个数，而对于每辆车来说就如同一个线程，</span><br><span class="line">    // 线程需要通过acquire()方法获取许可，而release()释放许可。</span><br><span class="line">    // 如果许可数达到最大活动数，那么调用acquire()之后，便进入等待队列，</span><br><span class="line">    // 等待已获得许可的线程释放许可，从而使得多线程能够合理的运行。</span><br><span class="line">    //private static final Semaphore semaphore=new Semaphore(3); //非公平信号量</span><br><span class="line">    private static final Semaphore semaphore=new Semaphore(3,true); //公平信号量,公平信号量的效果是线程的启动顺序与调用Semaphore.acquire()顺序有关，即先启动的线程优先得到许可。</span><br><span class="line">    //private static final Semaphore semaphoreEx=new Semaphore(1); //如果将给定许可数设置为1，就如同一个单例模式，即单个停车位，只有一辆车进，然后这辆车出来后，下一辆车才能进。</span><br><span class="line">    private static final ThreadPoolExecutor threadPool=new ThreadPoolExecutor(5,10,60,TimeUnit.SECONDS,new LinkedBlockingQueue&lt;Runnable&gt;());</span><br><span class="line"></span><br><span class="line">    private static class InformationThread extends Thread&#123;</span><br><span class="line">        private final String name;</span><br><span class="line">        private final int age;</span><br><span class="line">        public InformationThread(String name,int age) &#123;</span><br><span class="line">            this.name=name;</span><br><span class="line">            this.age=age;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        @Override</span><br><span class="line">        public void run() &#123;</span><br><span class="line">            try &#123;</span><br><span class="line">                semaphore.acquire();</span><br><span class="line">                System.out.println(Thread.currentThread().getName()+&quot;:大家好，我是&quot;+name+&quot;我今年&quot;+age+&quot;岁当前时间为：&quot;+System.currentTimeMillis());</span><br><span class="line">                Thread.sleep(1000);</span><br><span class="line">                System.out.println(name+&quot;要准备释放许可证了，当前时间为：&quot;+System.currentTimeMillis());</span><br><span class="line">                System.out.println(&quot;当前可使用的许可数为：&quot;+semaphore.availablePermits());</span><br><span class="line">                semaphore.release();</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line">            catch(InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        String[] name= &#123;&quot;李明&quot;,&quot;王五&quot;,&quot;张杰&quot;,&quot;王强&quot;,&quot;赵二&quot;,&quot;李四&quot;,&quot;张三&quot;&#125;;</span><br><span class="line">        int[] age= &#123;26,27,33,45,19,23,41&#125;;</span><br><span class="line">        for(int i=0;i&lt;7;i++) &#123;</span><br><span class="line">            Thread t1=new InformationThread(name[i],age[i]);</span><br><span class="line">            threadPool.execute(t1);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><em>**从上面代码中，看到有一行注释掉了：非公平信号量，跟公平信号量相反，获取许可的顺利跟线程启动无关。而公平信号量的效果是线程的启动顺序与调用Semaphore.acquire()顺序有关，即先启动的线程优先得到许可。</em><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">pool-1-thread-2:大家好，我是王五我今年27岁当前时间为：1553434800630</span><br><span class="line">pool-1-thread-3:大家好，我是张杰我今年33岁当前时间为：1553434800631</span><br><span class="line">pool-1-thread-1:大家好，我是李明我今年26岁当前时间为：1553434800630</span><br><span class="line">王五要准备释放许可证了，当前时间为：1553434801630</span><br><span class="line">当前可使用的许可数为：0</span><br><span class="line">pool-1-thread-4:大家好，我是王强我今年45岁当前时间为：1553434801630</span><br><span class="line">张杰要准备释放许可证了，当前时间为：1553434801631</span><br><span class="line">当前可使用的许可数为：0</span><br><span class="line">李明要准备释放许可证了，当前时间为：1553434801631</span><br><span class="line">pool-1-thread-5:大家好，我是赵二我今年19岁当前时间为：1553434801631</span><br><span class="line">当前可使用的许可数为：0</span><br><span class="line">pool-1-thread-2:大家好，我是李四我今年23岁当前时间为：1553434801631</span><br><span class="line">赵二要准备释放许可证了，当前时间为：1553434802631</span><br><span class="line">李四要准备释放许可证了，当前时间为：1553434802631</span><br><span class="line">当前可使用的许可数为：0</span><br><span class="line">王强要准备释放许可证了，当前时间为：1553434802631</span><br><span class="line">当前可使用的许可数为：0</span><br><span class="line">当前可使用的许可数为：0</span><br><span class="line">pool-1-thread-3:大家好，我是张三我今年41岁当前时间为：1553434802631</span><br><span class="line">张三要准备释放许可证了，当前时间为：1553434803631</span><br><span class="line">当前可使用的许可数为：2</span><br></pre></td></tr></table></figure></p>
+<p>从控制台输出中，可以明显看到，获取许可是有顺利的，前三个启动的线程先分别获取到三个许可。后续的线程进行等待，一有释放的许可，先启动的线程先获取到许可，依次执行。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><h4 id="共同点"><a href="#共同点" class="headerlink" title="共同点"></a>共同点</h4><ul>
+<li>CountDownLatch与CyclikBarrier两者的共同点是都具有await()方法，并且执行此方法会引起线程的阻塞，达到某种条件才能继续执行（这种条件也是两者的不同）。</li>
+<li>Semaphore，acquire方获取的资源达到最大数量时，线程再次acquire获取资源时，也会使线程处于阻塞状态。</li>
+<li>CountDownLatch、CyclikBarrier、Semaphore 都有一个int类型参数的构造方法。</li>
+</ul>
+<h4 id="不同点"><a href="#不同点" class="headerlink" title="不同点"></a>不同点</h4><ul>
+<li>CountDownLatch 使一个线程A或是一组线程A等待其它线程执行完毕后，一个线程A或是组线程A才继续执行。CyclicBarrier：一组线程使用await()指定barrier，所有线程都到达各自的barrier后，再同时执行各自barrier下面的代码。Semaphore：是用来控制同时访问特定资源的线程数量，它通过协调各个线程，以保证合理的使用公共资源。</li>
+<li>CountDownLatch是减计数方式，计数==0时释放所有等待的线程；CyclicBarrier是加计数方式，计数达到构造方法中参数指定的值时释放所有等待的线程。Semaphore，每次semaphore.acquire()，获取一个资源，每次semaphore.acquire(n)，获取n个资源，当达到semaphore 指定资源数量时就不能再访问线程处于阻塞，必须等其它线程释放资源，semaphore.relase()每次释放一个资源，semaphore.relase(n)每次资源n个资源。</li>
+<li>CountDownLatch当计数到0时，计数无法被重置；CyclicBarrier计数达到指定值时，计数置为0重新开始。CountDownLatch每次调用countDown()方法计数减一，调用await()方法只进行阻塞，对计数没任何影响；CyclicBarrier只有一个await()方法，调用await()方法计数加1，若加1后的值不等于构造方法的值，则线程阻塞。</li>
+<li>CountDownLatch、CyclikBarrier、Semaphore 都有一个int类型参数的构造方法。CountDownLatch、CyclikBarrier这个值作为计数用，达到该次数即释放等待的线程，而Semaphore 中所有acquire获取到的资源达到这个数，会使得其它线程阻塞。</li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/多线程/" rel="tag"># 多线程</a>
+          
+            <a href="/tags/并发编程/" rel="tag"># 并发编程</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/23/designPrinciples/" rel="next" title="面向对象设计模式原则概述">
+                <i class="fa fa-chevron-left"></i> 面向对象设计模式原则概述
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/headph.jpg" alt="vino-jay">
+            
+              <p class="site-author-name" itemprop="name">vino-jay</p>
+              <div class="site-description motion-element" itemprop="description">凡不能毁灭我的，将使我更强大</div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">9</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Synchronization-Aid：同步辅助器"><span class="nav-number">1.</span> <span class="nav-text">Synchronization  Aid：同步辅助器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CountDownLatch-用法"><span class="nav-number">2.</span> <span class="nav-text">CountDownLatch 用法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#方法"><span class="nav-number">2.1.</span> <span class="nav-text">方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#案例"><span class="nav-number">2.2.</span> <span class="nav-text">案例</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#code"><span class="nav-number">2.2.1.</span> <span class="nav-text">code:</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CyclicBarrier-用法"><span class="nav-number">3.</span> <span class="nav-text">CyclicBarrier 用法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#方法-1"><span class="nav-number">3.1.</span> <span class="nav-text">方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#案例-1"><span class="nav-number">3.2.</span> <span class="nav-text">案例</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#code-1"><span class="nav-number">3.2.1.</span> <span class="nav-text">code:</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Semaphore-用法"><span class="nav-number">4.</span> <span class="nav-text">Semaphore 用法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#方法-2"><span class="nav-number">4.1.</span> <span class="nav-text">方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#案例-2"><span class="nav-number">4.2.</span> <span class="nav-text">案例</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#code-2"><span class="nav-number">4.2.1.</span> <span class="nav-text">code:</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#共同点"><span class="nav-number">5.1.</span> <span class="nav-text">共同点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#不同点"><span class="nav-number">5.2.</span> <span class="nav-text">不同点</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">vino-jay</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.0.1</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.1"></script>
+
+  <script src="/js/src/motion.js?v=7.0.1"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=7.0.1"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=7.0.1"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.1"></script>
+<script src="/js/src/post-details.js?v=7.0.1"></script>
+
+
+
+  
+
+
+  <script src="/js/src/next-boot.js?v=7.0.1"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

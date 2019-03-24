@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.1" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.0.1',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前言：    在上一篇介绍《单例模式》中，详细说明了单例的各种形式，对于设计模式是有一定规范和原则的，本文将概述下设计模式的7大原则 软件的可维护性和可复用性 知名软件大师Robert C.Martin认为一个可维护性(Maintainability) 较低的软件设计，通常由于如下4个原因造成：  过于僵硬(Rigidity)  过于脆弱(Fragility)  复用率低(Immobility)">
+<meta name="keywords" content="面对对象,设计模式">
+<meta property="og:type" content="article">
+<meta property="og:title" content="面向对象设计模式原则概述">
+<meta property="og:url" content="https://vino-jay.github.io/2019/03/23/designPrinciples/index.html">
+<meta property="og:site_name" content="vino-jay的技术博客">
+<meta property="og:description" content="前言：    在上一篇介绍《单例模式》中，详细说明了单例的各种形式，对于设计模式是有一定规范和原则的，本文将概述下设计模式的7大原则 软件的可维护性和可复用性 知名软件大师Robert C.Martin认为一个可维护性(Maintainability) 较低的软件设计，通常由于如下4个原因造成：  过于僵硬(Rigidity)  过于脆弱(Fragility)  复用率低(Immobility)">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-03-24T13:58:21.416Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="面向对象设计模式原则概述">
+<meta name="twitter:description" content="前言：    在上一篇介绍《单例模式》中，详细说明了单例的各种形式，对于设计模式是有一定规范和原则的，本文将概述下设计模式的7大原则 软件的可维护性和可复用性 知名软件大师Robert C.Martin认为一个可维护性(Maintainability) 较低的软件设计，通常由于如下4个原因造成：  过于僵硬(Rigidity)  过于脆弱(Fragility)  复用率低(Immobility)">
+
+
+
+
+
+
+  <link rel="canonical" href="https://vino-jay.github.io/2019/03/23/designPrinciples/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>面向对象设计模式原则概述 | vino-jay的技术博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">vino-jay的技术博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>随笔</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://vino-jay.github.io/2019/03/23/designPrinciples/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="vino-jay">
+      <meta itemprop="description" content="凡不能毁灭我的，将使我更强大">
+      <meta itemprop="image" content="/images/headph.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="vino-jay的技术博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">面向对象设计模式原则概述
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-03-23 17:14:34" itemprop="dateCreated datePublished" datetime="2019-03-23T17:14:34+08:00">2019-03-23</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-03-24 21:58:21" itemprop="dateModified" datetime="2019-03-24T21:58:21+08:00">2019-03-24</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>前言：<br>    在上一篇介绍《单例模式》中，详细说明了单例的各种形式，对于设计模式是有一定规范和原则的，本文将概述下设计模式的7大原则</p>
+<h3 id="软件的可维护性和可复用性"><a href="#软件的可维护性和可复用性" class="headerlink" title="软件的可维护性和可复用性"></a>软件的可维护性和可复用性</h3><blockquote>
+<p>知名软件大师Robert C.Martin认为一个可维护性(Maintainability) 较低的软件设计，通常由于如下4个原因造成：</p>
+<ul>
+<li>过于僵硬(Rigidity) </li>
+<li>过于脆弱(Fragility) </li>
+<li>复用率低(Immobility) </li>
+<li>黏度过高(Viscosity) </li>
+</ul>
+</blockquote>
+<blockquote>
+<p>通常而言，一个好的系统设计应该具备如下三个性质</p>
+<ul>
+<li>可扩展性(Extensibility) </li>
+<li>灵活性(Flexibility)</li>
+<li>可插入性(Pluggability) </li>
+</ul>
+</blockquote>
+<a id="more"></a>
+<blockquote>
+<p> 软件的可维护性和可复用性有以下特征：</p>
+<ul>
+<li>软件的复用(Reuse)或重用拥有众多优点，如可以提高软件的开发效率，提高软件质量，节约开发成本，恰当的复用还可以改善系统的可维护性</li>
+<li>面向对象设计复用的目标在于实现支持可维护性的复用。 </li>
+<li>在面向对象的设计里面，可维护性复用都是以面向对象设计原则为基础的，这些设计原则首先都是复用的原则，遵循这些设计原则可以有效地提高系统的复用性，同时提高系统的可维护性。 </li>
+</ul>
+</blockquote>
+<h3 id="面向对象设计原则简介"><a href="#面向对象设计原则简介" class="headerlink" title="面向对象设计原则简介"></a>面向对象设计原则简介</h3><p>如下表：</p>
+<table>
+<thead>
+<tr>
+<th>设计原则名称</th>
+<th>设计原则简介</th>
+<th>重要性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>单一职责原则 (Single Responsibility Principle, SRP)</td>
+<td>类的职责要单一，不能将太多的职责放在一个类中</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td>开闭原则 (Open-Closed Principle, OCP)</td>
+<td>软件实体对扩展是开放的，但对修改是关闭的，即在不修改一个软件实体的基础上去扩展其功能</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td>里氏代换原则 (Liskov Substitution Principle, LSP)</td>
+<td>在软件系统中，一个可以接受基类对象的地方必然可以接受一个子类对象</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td>依赖倒转原则 (Dependency Inversion Principle, DIP)</td>
+<td>要针对抽象层编程，而不要针对具体类编程</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td>接口隔离原则 (Interface Segregation Principle, ISP)</td>
+<td>使用多个专门的接口来取代一个统一的接口</td>
+<td>★★☆☆☆</td>
+</tr>
+<tr>
+<td>合成复用原则 (Composite Reuse Principle, CRP)</td>
+<td>在系统中应该尽量多使用组合和聚合关联关系，尽量少使用甚至不使用继承关系</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td>迪米特法则 (Law of Demeter, LoD)</td>
+<td>一个软件实体对其他实体的引用越少越好，或者说如果两个类不必彼此直接通信，那么这两个类就不应当发生直接的相互作用，而是通过引入一个第三者发生间接交互</td>
+<td>★★★☆☆</td>
+</tr>
+</tbody>
+</table>
+<h3 id="简要阐述"><a href="#简要阐述" class="headerlink" title="简要阐述"></a>简要阐述</h3><h4 id="单一职责原则"><a href="#单一职责原则" class="headerlink" title="单一职责原则"></a>单一职责原则</h4><ul>
+<li>单一职责原则要求在软件系统中，一个类只负责一个功能领域中的相应职责。</li>
+<li>单一职责原则告诉我们：一个类不能太“累”！在软件系统中，一个类（大到模块，小到方法）承担的职责越多，它被复用的可能性就越小，而且一个类承担的职责过多，就相当于将这些职责耦合在一起，当其中一个职责变化时，可能会影响其他职责的运作。</li>
+<li>因此要将这些职责进行分离，将不同的职责封装在不同的类中，即将不同的变化原因封装在不同的类中，如果多个职责总是同时发生改变则可将它们封装在同一类中。<h4 id="开闭原则"><a href="#开闭原则" class="headerlink" title="开闭原则"></a>开闭原则</h4></li>
+<li>开闭原则是面向对象的可复用设计的第一块基石，它是最重要的面向对象设计原则。</li>
+<li>开闭原则要求一个软件实体应当对扩展开放，对修改关闭，即在不修改源代码的基础上扩展一个系统的行为。</li>
+<li>为了满足开闭原则，需要对系统进行抽象化设计，抽象化是开闭原则的关键。</li>
+<li>在Java、C#等编程语言中，可以为系统定义一个相对稳定的抽象层，而将不同的实现行为移至具体的实现层中完成。</li>
+<li>在很多面向对象编程语言中都提供了接口、抽象类等机制，可以通过它们定义系统的抽象层，再通过具体类来进行扩展。</li>
+<li>如果需要修改系统的行为，无须对抽象层进行任何改动，只需要增加新的具体类来实现新的业务功能即可，实现在不修改已有代码的基础上扩展系统的功能，达到开闭原则的要求。</li>
+</ul>
+<h4 id="里氏代换原则"><a href="#里氏代换原则" class="headerlink" title="里氏代换原则"></a>里氏代换原则</h4><ul>
+<li>里氏代换原则是实现开闭原则的重要方式之一</li>
+<li>可以通俗表述为在软件中如果能够使用基类对象，那么一定能够使用其子类对象。</li>
+<li>反过来则不成立，如果一个软件实体使用的是一个子类对象的话，那么它不一定能够使用基类对象。</li>
+<li>在程序中尽量使用基类类型来对对象进行定义，而在运行时再确定其子类类型，用子类对象来替换父类对象。</li>
+</ul>
+<blockquote>
+<p>在使用里氏代换原则时需要注意如下几个问题：<br><br><br>(1)子类的所有方法必须在父类中声明，或子类必须实现父类中声明的所有方法。根据里氏代换原则，为了保证系统的扩展性，在程序中通常使用父类来进行定义，如果一个方法只存在子类中，在父类中不提供相应的声明，则无法在以父类定义的对象中使用该方法。<br><br><br>(2)我们在运用里氏代换原则时，尽量把父类设计为抽象类或者接口，让子类继承父类或实现父接口，并实现在父类中声明的方法，运行时，子类实例替换父类实例，我们可以很方便地扩展系统的功能，同时无须修改原有子类的代码，增加新的功能可以通过增加一个新的子类来实现。里氏代换原则是开闭原则的具体实现手段之一。</p>
+</blockquote>
+<h4 id="依赖倒转原则"><a href="#依赖倒转原则" class="headerlink" title="依赖倒转原则"></a>依赖倒转原则</h4><ul>
+<li>如果说开闭原则是面向对象设计的目标的话，那么依赖倒转原则就是面向对象设计的主要实现机制之一，它是系统抽象化的具体实现</li>
+<li>依赖倒转原则要求抽象不应该依赖于细节，细节应该依赖于抽象；要针对接口编程，不要针对实现编程。</li>
+<li>依赖倒转原则要求我们在程序代码中传递参数时或在关联关系中，尽量引用层次高的抽象层类，即使用接口和抽象类进行变量类型声明、参数类型声明、方法返回类型声明，以及数据类型的转换等，而不要用具体类来做这些事情。</li>
+<li>为了确保该原则的应用，一个具体类应当只实现接口或抽象类中声明过的方法，而不要给出多余的方法，否则将无法调用到在子类中增加的新方法。</li>
+</ul>
+<h4 id="接口隔离原则"><a href="#接口隔离原则" class="headerlink" title="接口隔离原则"></a>接口隔离原则</h4><ul>
+<li>接口隔离原则要求客户端不应该依赖那些它不需要的接口，即将一些大的接口细化成一些小的接口供客户端使用。</li>
+<li>通俗来讲，每一个接口应该承担一种相对独立的角色，不干不该干的事，该干的事都要干。</li>
+<li>接口应该尽量细化，同时接口中的方法应该尽量少，每个接口中只包含一个客户端（如子模块或业务逻辑类）所需的方法即可，这种机制也称为“定制服务”，即为不同的客户端提供宽窄不同的接口。</li>
+</ul>
+<h4 id="合成复用原则"><a href="#合成复用原则" class="headerlink" title="合成复用原则"></a>合成复用原则</h4><ul>
+<li>合成复用原则要求复用时尽量使用对象组合，而不使用继承。</li>
+<li>就是在一个新的对象里面使用一些已有的对象，使之成为新对象的一部分，新的对象通过这些对象的委派达到复用已有功能的目的。</li>
+</ul>
+<h4 id="迪米特法则"><a href="#迪米特法则" class="headerlink" title="迪米特法则"></a>迪米特法则</h4><ul>
+<li>迪米特法则要求一个软件实体应当尽可能少的与其他实体发生相互作用。</li>
+<li>迪米特法则可降低系统的耦合度，使类与类之间保持松散的耦合关系。</li>
+<li>迪米特法则要求我们在设计系统时，应该尽量减少对象之间的交互，如果两个对象之间不必彼此直接通信，那么这两个对象就不应当发生任何直接的相互作用，如果其中的一个对象需要调用另一个对象的某一个方法的话，可以通过第三者转发这个调用。简言之，就是通过引入一个合理的第三者来降低现有对象之间的耦合度。</li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/面对对象/" rel="tag"># 面对对象</a>
+          
+            <a href="/tags/设计模式/" rel="tag"># 设计模式</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/19/singleton/" rel="next" title="大话设计模式之单例模式">
+                <i class="fa fa-chevron-left"></i> 大话设计模式之单例模式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/03/24/concurrentAid/" rel="prev" title="并发编程之辅助工具类">
+                并发编程之辅助工具类 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/headph.jpg" alt="vino-jay">
+            
+              <p class="site-author-name" itemprop="name">vino-jay</p>
+              <div class="site-description motion-element" itemprop="description">凡不能毁灭我的，将使我更强大</div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">9</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#软件的可维护性和可复用性"><span class="nav-number">1.</span> <span class="nav-text">软件的可维护性和可复用性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#面向对象设计原则简介"><span class="nav-number">2.</span> <span class="nav-text">面向对象设计原则简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#简要阐述"><span class="nav-number">3.</span> <span class="nav-text">简要阐述</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#单一职责原则"><span class="nav-number">3.1.</span> <span class="nav-text">单一职责原则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#开闭原则"><span class="nav-number">3.2.</span> <span class="nav-text">开闭原则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#里氏代换原则"><span class="nav-number">3.3.</span> <span class="nav-text">里氏代换原则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#依赖倒转原则"><span class="nav-number">3.4.</span> <span class="nav-text">依赖倒转原则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#接口隔离原则"><span class="nav-number">3.5.</span> <span class="nav-text">接口隔离原则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#合成复用原则"><span class="nav-number">3.6.</span> <span class="nav-text">合成复用原则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#迪米特法则"><span class="nav-number">3.7.</span> <span class="nav-text">迪米特法则</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">vino-jay</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.0.1</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.1"></script>
+
+  <script src="/js/src/motion.js?v=7.0.1"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=7.0.1"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=7.0.1"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.1"></script>
+<script src="/js/src/post-details.js?v=7.0.1"></script>
+
+
+
+  
+
+
+  <script src="/js/src/next-boot.js?v=7.0.1"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
